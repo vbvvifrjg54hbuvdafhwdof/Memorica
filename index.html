@@ -1271,6 +1271,22 @@
           <input type="file" id="import-all-file" style="display:none" accept=".json" onchange="importAllData(event)">
         </div>
       </div>
+
+      <!-- APP UPDATE & CACHE MANAGEMENT -->
+      <div class="section-card">
+        <div class="section-title">🚀 バージョン情報 & 最新版への強制更新</div>
+        <p class="hint-text" style="margin-bottom: 12px;">
+          GitHubに最新コードをプッシュした際、ブラウザやPWAのService Workerが古いキャッシュを保持していると変更が反映されない場合があります。下のボタンを押すとキャッシュ・Service Workerを全消去して最新版を確実に再読み込みします。
+        </p>
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+          <div style="font-size: 0.85rem; color: var(--text-muted);">
+            現在のバージョン: <strong style="color: var(--text-main);" id="app-version-label">v1.4.0 (2026-10-14)</strong>
+          </div>
+          <button type="button" class="btn btn-secondary btn-sm" style="width: auto; padding: 8px 16px; border-color: var(--primary); color: var(--primary); font-weight: 700;" onclick="forceUpdateApp()">
+            🔄 キャッシュをクリアして最新版に更新
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- 5. OTHER / STATS VIEW -->
@@ -1811,7 +1827,7 @@
         }));
       }
 
-      // パターンB: back に複数行が含まれる場合（典型的な複数行解答）
+      // パターンB: back に複数行が含まれる場合（典型的な一問多答・複数行解答）
       if (backLines.length > 1) {
         return backLines.map(bl => {
           const m = bl.match(/^(.+?)([:：\t]| - | ― )(.+)$/);
@@ -1830,20 +1846,44 @@
         });
       }
 
-      // パターンC: back が空で、front に複数行があり各行に区切り文字がある場合
-      if (!card.back || card.back.trim() === '') {
-        if (frontLines.length > 1) {
-          const allHaveSep = frontLines.every(fl => /^(.+?)([:：\t]| - | ― )(.+)$/.test(fl));
-          if (allHaveSep) {
-            return frontLines.map(fl => {
-              const m = fl.match(/^(.+?)([:：\t]| - | ― )(.+)$/);
+      // パターンC: front に複数行が含まれ、back が単一行または空の場合
+      if (frontLines.length > 1 && backLines.length <= 1) {
+        return frontLines.map(fl => {
+          const m = fl.match(/^(.+?)([:：\t]| - | ― )(.+)$/);
+          if (m) {
+            return {
+              label: m[1] + (m[2].trim() === '-' || m[2].trim() === '―' ? ' : ' : m[2]),
+              content: m[3].trim(),
+              raw: fl
+            };
+          }
+          return {
+            label: '',
+            content: fl,
+            raw: fl
+          };
+        });
+      }
+
+      // パターンD: text に複数行が含まれる場合（JSON等の汎用textフィールド）
+      if (card.text) {
+        const textLines = splitTextLines(card.text);
+        if (textLines.length > 1) {
+          return textLines.map(tl => {
+            const m = tl.match(/^(.+?)([:：\t]| - | ― )(.+)$/);
+            if (m) {
               return {
                 label: m[1] + (m[2].trim() === '-' || m[2].trim() === '―' ? ' : ' : m[2]),
                 content: m[3].trim(),
-                raw: fl
+                raw: tl
               };
-            });
-          }
+            }
+            return {
+              label: '',
+              content: tl,
+              raw: tl
+            };
+          });
         }
       }
 
@@ -1867,7 +1907,9 @@
       const backLines = splitTextLines(card.back);
 
       let headerHTML = '';
-      if (card.front && card.front.trim() && (frontLines.length === 1 || backLines.length !== frontLines.length)) {
+      if (frontLines.length > 1 && backLines.length <= 1 && card.back && card.back.trim()) {
+        headerHTML = `<div class="multiline-card-question" style="font-size: 1.15rem; font-weight: 700; margin-bottom: 16px; line-height: 1.6; color: var(--text-main); word-break: break-word;">${renderCardHTMLText(card.back)}</div>`;
+      } else if (card.front && card.front.trim() && (frontLines.length === 1 || backLines.length !== frontLines.length)) {
         headerHTML = `<div class="multiline-card-question" style="font-size: 1.15rem; font-weight: 700; margin-bottom: 16px; line-height: 1.6; color: var(--text-main); word-break: break-word;">${renderCardHTMLText(card.front)}</div>`;
       }
 
@@ -2149,18 +2191,74 @@
     function saveFoldersData() { localStorage.setItem(STORAGE_FOLDERS, JSON.stringify(folders)); }
     function saveSettingsData() { localStorage.setItem(STORAGE_SETTINGS, JSON.stringify(settings)); }
 
-    // Service Worker Registration
+    // Service Worker Registration & GitHub Cache-Busting System
     function initServiceWorker() {
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./sw.js', { scope: './' })
+        // Use version parameter and updateViaCache: 'none' to bypass browser HTTP cache on GitHub Pages
+        const swUrl = './sw.js?v=memorica-v8';
+        navigator.serviceWorker.register(swUrl, { scope: './', updateViaCache: 'none' })
           .then(reg => {
             console.log('ServiceWorker registered with scope:', reg.scope);
             reg.update();
+
+            reg.addEventListener('updatefound', () => {
+              const newWorker = reg.installing;
+              if (newWorker) {
+                newWorker.addEventListener('statechange', () => {
+                  if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    showUpdateNotificationBanner();
+                  }
+                });
+              }
+            });
           })
           .catch(err => {
             console.warn('ServiceWorker registration failed:', err);
           });
+
+        let refreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (!refreshing) {
+            refreshing = true;
+            window.location.reload();
+          }
+        });
       }
+    }
+
+    // Force update app: clear all Service Worker registrations, clear cache storage, and hard reload
+    async function forceUpdateApp() {
+      try {
+        if ('serviceWorker' in navigator) {
+          const regs = await navigator.serviceWorker.getRegistrations();
+          for (const reg of regs) {
+            await reg.unregister();
+          }
+        }
+        if ('caches' in window) {
+          const cacheKeys = await caches.keys();
+          for (const key of cacheKeys) {
+            await caches.delete(key);
+          }
+        }
+        // Force reload without cache
+        const targetUrl = window.location.origin + window.location.pathname + '?nocache=' + Date.now();
+        window.location.replace(targetUrl);
+      } catch (err) {
+        window.location.reload();
+      }
+    }
+
+    function showUpdateNotificationBanner() {
+      if (document.getElementById('update-notification-banner')) return;
+      const banner = document.createElement('div');
+      banner.id = 'update-notification-banner';
+      banner.style.cssText = 'position:fixed; top:0; left:0; right:0; background:var(--primary); color:#ffffff; padding:10px 16px; text-align:center; font-size:0.88rem; font-weight:700; z-index:99999; box-shadow:0 2px 10px rgba(0,0,0,0.15); display:flex; align-items:center; justify-content:center; gap:12px;';
+      banner.innerHTML = `
+        <span>🎉 最新版のアプリが公開されました！</span>
+        <button type="button" onclick="forceUpdateApp()" style="background:#ffffff; color:var(--primary); border:none; border-radius:6px; padding:4px 12px; font-weight:700; cursor:pointer; font-size:0.82rem;">今すぐ更新</button>
+      `;
+      document.body.prepend(banner);
     }
 
     // Modal Backdrop Click to Close
