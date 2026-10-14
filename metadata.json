@@ -1,0 +1,6 @@
+{
+  "name": "Memorica",
+  "description": "完全単一ファイル（index.html）で動作する間隔反復学習（SRS）PWAアプリ",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

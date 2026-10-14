@@ -1,0 +1,3964 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Memorica - 間隔反復学習 (SRS) PWA</title>
+  <meta name="theme-color" content="#fdfbfb">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='120' fill='%23fef2f4'/><rect x='136' y='116' width='240' height='280' rx='24' fill='%23fca5a5' opacity='0.75' transform='rotate(-10 256 256)'/><rect x='136' y='116' width='240' height='280' rx='24' fill='%23e06d88' opacity='0.9' transform='rotate(6 256 256)'/><rect x='136' y='116' width='240' height='280' rx='24' fill='%23ffffff'/><rect x='176' y='166' width='160' height='18' rx='9' fill='%23e06d88'/><rect x='176' y='202' width='120' height='12' rx='6' fill='%23fca5a5'/><rect x='176' y='226' width='140' height='12' rx='6' fill='%23e2e8f0'/><rect x='176' y='320' width='70' height='24' rx='12' fill='%2386efac'/><circle cx='316' cy='332' r='14' fill='%23bae6fd'/></svg>">
+  <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='120' fill='%23fef2f4'/><rect x='136' y='116' width='240' height='280' rx='24' fill='%23fca5a5' opacity='0.75' transform='rotate(-10 256 256)'/><rect x='136' y='116' width='240' height='280' rx='24' fill='%23e06d88' opacity='0.9' transform='rotate(6 256 256)'/><rect x='136' y='116' width='240' height='280' rx='24' fill='%23ffffff'/><rect x='176' y='166' width='160' height='18' rx='9' fill='%23e06d88'/><rect x='176' y='202' width='120' height='12' rx='6' fill='%23fca5a5'/><rect x='176' y='226' width='140' height='12' rx='6' fill='%23e2e8f0'/><rect x='176' y='320' width='70' height='24' rx='12' fill='%2386efac'/><circle cx='316' cy='332' r='14' fill='%23bae6fd'/></svg>">
+  <link rel="manifest" href="./manifest.json">
+  <style>
+    /* 1. Theme Variables (Gentle Pastel Color Palettes) */
+    :root, [data-theme="sakura"] {
+      --bg-body: #fdfbfb;
+      --card-bg: #ffffff;
+      --header-bg: #ffffff;
+      --header-text: #2d3748;
+      --header-border: #f3e5e8;
+      --nav-bg: #fdf8f9;
+      --nav-border: #f3e5e8;
+      --nav-btn-text: #6e7a8a;
+      --nav-btn-active-bg: #fce7ec;
+      --nav-btn-active-text: #db2777;
+      --primary: #e06d88;
+      --primary-hover: #d45c79;
+      --primary-light: #fef2f4;
+      --border-color: #f1e2e7;
+      --text-main: #2d3748;
+      --text-muted: #788698;
+      --card-shadow: 0 2px 10px rgba(224, 109, 136, 0.05);
+
+      --mask-bg: #fca5a5;
+      --mask-revealed-bg: #fff1f2;
+      --mask-revealed-text: #be123c;
+
+      --again-btn: #fecdd3;
+      --again-text: #9f1239;
+      --hard-btn: #fed7aa;
+      --hard-text: #9a3412;
+      --good-btn: #bbf7d0;
+      --good-text: #166534;
+      --easy-btn: #bae6fd;
+      --easy-text: #075985;
+    }
+
+    [data-theme="mint"] {
+      --bg-body: #f7faf8;
+      --card-bg: #ffffff;
+      --header-bg: #ffffff;
+      --header-text: #24332b;
+      --header-border: #e0ede4;
+      --nav-bg: #f0f7f3;
+      --nav-border: #e0ede4;
+      --nav-btn-text: #597365;
+      --nav-btn-active-bg: #dcfce7;
+      --nav-btn-active-text: #15803d;
+      --primary: #3db87f;
+      --primary-hover: #32a16d;
+      --primary-light: #f0fdf4;
+      --border-color: #deeae2;
+      --text-main: #24332b;
+      --text-muted: #677d71;
+      --card-shadow: 0 2px 10px rgba(61, 184, 127, 0.05);
+
+      --mask-bg: #86efac;
+      --mask-revealed-bg: #f0fdf4;
+      --mask-revealed-text: #166534;
+
+      --again-btn: #fecdd3;
+      --again-text: #9f1239;
+      --hard-btn: #fed7aa;
+      --hard-text: #9a3412;
+      --good-btn: #bbf7d0;
+      --good-text: #166534;
+      --easy-btn: #bae6fd;
+      --easy-text: #075985;
+    }
+
+    [data-theme="sky"] {
+      --bg-body: #f7faff;
+      --card-bg: #ffffff;
+      --header-bg: #ffffff;
+      --header-text: #1e293b;
+      --header-border: #e2eaf4;
+      --nav-bg: #f0f6fc;
+      --nav-border: #e2eaf4;
+      --nav-btn-text: #5c6e84;
+      --nav-btn-active-bg: #e0f2fe;
+      --nav-btn-active-text: #0369a1;
+      --primary: #4a90e2;
+      --primary-hover: #3b7dc9;
+      --primary-light: #f0f7ff;
+      --border-color: #dee8f5;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --card-shadow: 0 2px 10px rgba(74, 144, 226, 0.05);
+
+      --mask-bg: #93c5fd;
+      --mask-revealed-bg: #eff6ff;
+      --mask-revealed-text: #1d4ed8;
+
+      --again-btn: #fecdd3;
+      --again-text: #9f1239;
+      --hard-btn: #fed7aa;
+      --hard-text: #9a3412;
+      --good-btn: #bbf7d0;
+      --good-text: #166534;
+      --easy-btn: #bae6fd;
+      --easy-text: #075985;
+    }
+
+    [data-theme="lavender"] {
+      --bg-body: #f9f8fd;
+      --card-bg: #ffffff;
+      --header-bg: #ffffff;
+      --header-text: #2b2638;
+      --header-border: #ece6f7;
+      --nav-bg: #f5f2fb;
+      --nav-border: #ece6f7;
+      --nav-btn-text: #6d6482;
+      --nav-btn-active-bg: #ede9fe;
+      --nav-btn-active-text: #6d28d9;
+      --primary: #8b78d6;
+      --primary-hover: #7c68cb;
+      --primary-light: #f5f3ff;
+      --border-color: #eae3f7;
+      --text-main: #2b2638;
+      --text-muted: #79738b;
+      --card-shadow: 0 2px 10px rgba(139, 120, 214, 0.05);
+
+      --mask-bg: #c4b5fd;
+      --mask-revealed-bg: #faf5ff;
+      --mask-revealed-text: #6b21a8;
+
+      --again-btn: #fecdd3;
+      --again-text: #9f1239;
+      --hard-btn: #fed7aa;
+      --hard-text: #9a3412;
+      --good-btn: #bbf7d0;
+      --good-text: #166534;
+      --easy-btn: #bae6fd;
+      --easy-text: #075985;
+    }
+
+    [data-theme="latte"] {
+      --bg-body: #faf8f4;
+      --card-bg: #ffffff;
+      --header-bg: #ffffff;
+      --header-text: #342c24;
+      --header-border: #eee6db;
+      --nav-bg: #f6efe7;
+      --nav-border: #eee6db;
+      --nav-btn-text: #7b6e62;
+      --nav-btn-active-bg: #fef3c7;
+      --nav-btn-active-text: #92400e;
+      --primary: #a87b51;
+      --primary-hover: #976c43;
+      --primary-light: #fdf8f3;
+      --border-color: #ece1d3;
+      --text-main: #342c24;
+      --text-muted: #807467;
+      --card-shadow: 0 2px 10px rgba(168, 123, 81, 0.05);
+
+      --mask-bg: #fed7aa;
+      --mask-revealed-bg: #fffbeb;
+      --mask-revealed-text: #9a3412;
+
+      --again-btn: #fecdd3;
+      --again-text: #9f1239;
+      --hard-btn: #fed7aa;
+      --hard-text: #9a3412;
+      --good-btn: #bbf7d0;
+      --good-text: #166534;
+      --easy-btn: #bae6fd;
+      --easy-text: #075985;
+    }
+
+    [data-theme="minimal"] {
+      --bg-body: #fbfbfc;
+      --card-bg: #ffffff;
+      --header-bg: #ffffff;
+      --header-text: #1e293b;
+      --header-border: #e8ebf0;
+      --nav-bg: #f3f5f8;
+      --nav-border: #e8ebf0;
+      --nav-btn-text: #64748b;
+      --nav-btn-active-bg: #e2e8f0;
+      --nav-btn-active-text: #1e293b;
+      --primary: #64748b;
+      --primary-hover: #475569;
+      --primary-light: #f8fafc;
+      --border-color: #e4e8ef;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --card-shadow: 0 2px 10px rgba(100, 116, 139, 0.04);
+
+      --mask-bg: #cbd5e1;
+      --mask-revealed-bg: #f8fafc;
+      --mask-revealed-text: #334155;
+
+      --again-btn: #fecdd3;
+      --again-text: #9f1239;
+      --hard-btn: #fed7aa;
+      --hard-text: #9a3412;
+      --good-btn: #bbf7d0;
+      --good-text: #166534;
+      --easy-btn: #bae6fd;
+      --easy-text: #075985;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0; padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      user-select: none;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    header {
+      background-color: var(--header-bg);
+      color: var(--header-text);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+      border-bottom: 1px solid var(--header-border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: var(--header-text);
+    }
+
+    .brand span {
+      color: var(--primary);
+      font-weight: 800;
+      letter-spacing: -0.3px;
+    }
+
+    .theme-quick-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--nav-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .theme-quick-btn:hover {
+      background: var(--primary-light);
+      border-color: var(--primary);
+    }
+
+    .theme-quick-btn:active {
+      transform: scale(0.96);
+    }
+
+    nav {
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+      padding: 6px 8px;
+      box-sizing: border-box;
+      background-color: var(--nav-bg);
+      border-bottom: 1px solid var(--nav-border);
+      position: sticky;
+      top: 48px;
+      z-index: 99;
+      transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .nav-btn {
+      width: 100%;
+      min-width: 0;
+      min-height: 42px;
+      white-space: nowrap;
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--nav-btn-text);
+      padding: 8px 4px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: -0.2px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      touch-action: manipulation;
+      box-sizing: border-box;
+      text-align: center;
+      transition: all 0.15s ease;
+    }
+
+    .nav-btn:hover {
+      background-color: var(--primary-light);
+      color: var(--primary);
+    }
+
+    .nav-btn.active {
+      background-color: var(--nav-btn-active-bg);
+      color: var(--nav-btn-active-text);
+      border-color: var(--border-color);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    }
+
+    main {
+      flex: 1;
+      max-width: 800px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 16px;
+      padding-bottom: 100px;
+      box-sizing: border-box;
+    }
+
+    .view { display: none; }
+    .view.active { display: block; }
+
+    .deck-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .folder-tree {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .folder-node {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 12px 14px;
+      box-shadow: var(--card-shadow);
+      cursor: default;
+      position: relative;
+      touch-action: manipulation;
+      min-height: 52px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      transition: background-color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .folder-node:active { background-color: var(--primary-light); }
+
+    .folder-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .folder-toggle-btn {
+      background: none;
+      border: none;
+      padding: 6px 8px;
+      margin-left: -4px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      flex-shrink: 0;
+      touch-action: manipulation;
+      min-width: 28px;
+      min-height: 28px;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .folder-toggle-btn:active {
+      background-color: var(--primary-light);
+      color: var(--primary);
+    }
+
+    .folder-toggle-spacer {
+      width: 28px;
+      flex-shrink: 0;
+      display: inline-block;
+    }
+
+    .folder-info {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex: 1 1 140px;
+      min-width: 0;
+    }
+
+    .folder-icon {
+      flex-shrink: 0;
+      font-size: 1.1rem;
+    }
+
+    .folder-name {
+      font-weight: 700;
+      font-size: 0.98rem;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .folder-badges {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .folder-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 10px;
+      white-space: nowrap;
+      line-height: 1.2;
+    }
+
+    .folder-badge.badge-due {
+      background: #ffe4e6;
+      color: #9f1239;
+      border: 1px solid #fecdd3;
+    }
+
+    .folder-badge.badge-new {
+      background: #e0f2fe;
+      color: #0369a1;
+      border: 1px solid #bae6fd;
+    }
+
+    .folder-badge.badge-total {
+      background: #f1f5f9;
+      color: #475569;
+      border: 1px solid #e2e8f0;
+    }
+
+    .folder-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+    .study-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .badge-counts { display: flex; gap: 6px; }
+    .count-tag { padding: 3px 8px; border-radius: 12px; font-weight: 700; font-size: 0.78rem; }
+    .count-tag.new { background: var(--primary-light); color: var(--primary); border: 1px solid var(--border-color); }
+    .count-tag.due { background: #ffe4e6; color: #9f1239; border: 1px solid #fecdd3; }
+    .count-tag.learning { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+
+    .flashcard {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: var(--card-shadow);
+      min-height: 280px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .card-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 10px;
+      margin-bottom: 14px;
+    }
+
+    .card-type-badge {
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: var(--primary-light);
+      color: var(--primary);
+      border: 1px solid var(--border-color);
+    }
+
+    .card-path { font-size: 0.8rem; font-weight: 600; color: var(--primary); }
+
+    .card-body {
+      font-size: 1.15rem;
+      line-height: 1.7;
+      color: var(--text-main);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      user-select: text;
+    }
+
+    /* Masking (Instant Reveal Effect - Soft & Gentle) */
+    .mask-item {
+      display: inline-block;
+      background-color: var(--mask-bg);
+      color: transparent !important;
+      border-radius: 6px;
+      padding: 2px 6px;
+      margin: 2px 1px;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      font-weight: 600;
+      transition: all 0.15s ease;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      position: relative;
+      touch-action: manipulation;
+      max-width: 100%;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+      white-space: normal;
+      vertical-align: baseline;
+      box-sizing: border-box;
+    }
+
+    .mask-item.not-due-open {
+      background-color: transparent !important;
+      color: var(--text-main) !important;
+      border: 1px solid transparent;
+      box-shadow: none;
+      cursor: default;
+    }
+
+    .mask-item.revealed {
+      background-color: var(--mask-revealed-bg) !important;
+      color: var(--mask-revealed-text) !important;
+      box-shadow: none;
+      border: 1px dashed var(--mask-bg);
+    }
+
+    /* Correct (Tap) and Incorrect (Long Press) State */
+    .mask-item.revealed.correct {
+      background-color: #dcfce7 !important;
+      color: #15803d !important;
+      border: 1.5px solid #86efac;
+    }
+
+    .mask-item.revealed.incorrect {
+      background-color: #fee2e2 !important;
+      color: #b91c1c !important;
+      border: 1.5px solid #fca5a5;
+      text-decoration: line-through;
+      text-decoration-color: #ef4444;
+    }
+
+    .mask-item .mask-badge {
+      display: inline-block;
+      font-size: 0.7rem;
+      margin-left: 4px;
+      vertical-align: middle;
+    }
+
+    /* Multi-line & Row-based Card Styling */
+    .multiline-card-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+      margin: 10px 0;
+    }
+
+    .multiline-item-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      box-shadow: var(--shadow-sm);
+      transition: background-color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .multiline-row-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+      min-width: 0;
+      flex-wrap: wrap;
+    }
+
+    .multiline-row-index {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      min-width: 22px;
+      user-select: none;
+    }
+
+    .multiline-row-label {
+      font-weight: 600;
+      color: var(--text-main);
+      margin-right: 6px;
+      font-size: 0.95rem;
+      word-break: break-word;
+    }
+
+    .multiline-row-target {
+      display: inline-flex;
+      align-items: center;
+      max-width: 100%;
+    }
+
+    .multiline-item-row .mask-item {
+      padding: 6px 14px;
+      font-size: 0.95rem;
+      min-width: 80px;
+      text-align: center;
+    }
+
+    /* Cloze Instruction Guide */
+    .cloze-guide-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      background: var(--primary-light);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 6px 10px;
+      margin-bottom: 12px;
+      font-size: 0.76rem;
+      color: var(--text-main);
+    }
+
+    .cloze-guide-content {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .cloze-guide-close {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 4px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+    }
+
+    .cloze-guide-close:hover {
+      background: rgba(0, 0, 0, 0.08);
+      color: var(--text-main);
+    }
+
+    .cloze-summary-card {
+      background: var(--primary-light);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-top: 14px;
+    }
+
+    .cloze-summary-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .cloze-schedule-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 0.8rem;
+      color: var(--text-main);
+      margin-top: 6px;
+    }
+
+    .cloze-schedule-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 8px;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.7);
+      border: 1px solid var(--border-color);
+    }
+
+    /* Interruption Toast */
+    .interrupt-toast {
+      position: fixed;
+      top: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1e293b;
+      color: #ffffff;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      gap: 6px;
+      animation: fadeInDown 0.3s ease;
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translate(-50%, -10px); }
+      to { opacity: 1; transform: translate(-50%, 0); }
+    }
+
+    /* Responsive Table Auto-fit Container (No Horizontal Scroll Needed) */
+    .table-container {
+      width: 100%;
+      max-width: 100%;
+      overflow-x: hidden;
+      margin-top: 8px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      box-sizing: border-box;
+    }
+
+    .card-table {
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      table-layout: fixed;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      box-sizing: border-box;
+    }
+
+    .card-table th, .card-table td {
+      border: 1px solid var(--border-color);
+      padding: 6px 6px;
+      text-align: left;
+      min-width: 0;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+      white-space: normal;
+      hyphens: auto;
+      vertical-align: top;
+      box-sizing: border-box;
+    }
+
+    .card-table th {
+      background-color: var(--primary-light);
+      font-weight: 700;
+      color: var(--text-main);
+      font-size: 0.88rem;
+    }
+
+    /* Discrete Bottom Toggle Bar for Mass Open/Hide */
+    .mask-toggle-bar {
+      display: flex;
+      gap: 8px;
+      margin-top: 18px;
+      padding-top: 12px;
+      border-top: 1px dashed var(--border-color);
+      justify-content: flex-end;
+    }
+
+    .mask-toggle-bar .btn-subtle {
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 5px 10px;
+      font-size: 0.74rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .mask-toggle-bar .btn-subtle:hover {
+      background: var(--primary-light);
+      color: var(--primary);
+      border-color: var(--primary);
+    }
+
+    @media (max-width: 600px) {
+      .flashcard {
+        padding: 14px 12px;
+        min-height: 220px;
+      }
+      .card-body {
+        font-size: 1.05rem;
+        line-height: 1.55;
+      }
+      .card-table {
+        font-size: 0.8rem;
+      }
+      .card-table th, .card-table td {
+        padding: 4px 4px;
+      }
+      .mask-item {
+        padding: 1px 5px;
+        font-size: 0.9em;
+      }
+    }
+
+    @media (max-width: 480px) {
+      main {
+        padding: 10px 10px 100px 10px;
+      }
+      .btn-row {
+        gap: 4px;
+      }
+      .srs-btn {
+        padding: 6px 2px;
+      }
+      .srs-btn .btn-label {
+        font-size: 0.8rem;
+      }
+      .srs-btn .time-preview {
+        font-size: 0.65rem;
+      }
+      .card-table {
+        font-size: 0.74rem;
+      }
+      .card-table th, .card-table td {
+        padding: 3px 2px;
+      }
+    }
+
+    .answer-box {
+      margin-top: 16px;
+      padding: 14px;
+      background: var(--primary-light);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      user-select: text;
+    }
+
+    .answer-title { font-size: 0.85rem; font-weight: 700; color: var(--primary); margin-bottom: 6px; }
+    .answer-content { font-size: 1.05rem; color: var(--text-main); line-height: 1.6; }
+
+    /* Sticky Bottom Actions Bar */
+    .fixed-bottom-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--card-bg);
+      border-top: 1px solid var(--border-color);
+      box-shadow: 0 -2px 12px rgba(0,0,0,0.04);
+      padding: 12px 16px;
+      z-index: 150;
+      transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .fixed-bottom-inner {
+      max-width: 800px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .btn-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; width: 100%; }
+
+    .btn {
+      padding: 10px 12px;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.92rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      min-height: 48px;
+      transition: all 0.15s ease;
+    }
+
+    .btn:active { transform: scale(0.98); }
+    .btn-primary { background-color: var(--primary); color: #ffffff; width: 100%; }
+    .btn-primary:hover { background-color: var(--primary-hover); }
+    .btn-secondary {
+      background-color: var(--primary-light);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+    }
+    .btn-secondary:hover {
+      background-color: var(--border-color);
+    }
+
+    /* SRS Rating Buttons (Soft & Non-Aggressive) */
+    .srs-btn {
+      padding: 8px 2px;
+      border-radius: 10px;
+      border: 1px solid rgba(0,0,0,0.06);
+      transition: all 0.12s ease;
+      cursor: pointer;
+    }
+    .srs-btn .btn-label { font-size: 0.88rem; font-weight: 700; }
+    .srs-btn .time-preview { font-size: 0.72rem; opacity: 0.85; font-weight: 500; }
+
+    .btn-again { background-color: var(--again-btn) !important; color: var(--again-text) !important; }
+    .btn-hard { background-color: var(--hard-btn) !important; color: var(--hard-text) !important; }
+    .btn-good { background-color: var(--good-btn) !important; color: var(--good-text) !important; }
+    .btn-easy { background-color: var(--easy-btn) !important; color: var(--easy-text) !important; }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .search-input, .select-input, .text-input {
+      padding: 9px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      background: var(--card-bg);
+      color: var(--text-main);
+    }
+
+    .search-input { flex: 1; min-width: 150px; }
+
+    .card-list { display: flex; flex-direction: column; gap: 8px; }
+
+    .card-item {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--card-shadow);
+      transition: background-color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .card-item-info { flex: 1; padding-right: 10px; }
+    .card-item-title { font-weight: 700; font-size: 0.92rem; color: var(--text-main); margin-bottom: 4px; }
+    .card-item-sub { font-size: 0.78rem; color: var(--text-muted); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .card-item-actions { display: flex; gap: 4px; }
+
+    .btn-sm { padding: 6px 10px; font-size: 0.78rem; border-radius: 6px; min-height: auto; }
+
+    /* Modal Overlay */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 23, 42, 0.35);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      padding: 16px;
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-overlay.active { display: flex; }
+
+    .modal-content {
+      background: var(--card-bg);
+      border-radius: 16px;
+      border: 1px solid var(--border-color);
+      max-width: 580px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 20px;
+      box-shadow: 0 16px 32px rgba(0,0,0,0.08);
+      color: var(--text-main);
+    }
+
+    .action-menu-list { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+
+    .action-menu-btn {
+      padding: 12px 14px;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      background: var(--card-bg);
+      color: var(--text-main);
+      font-size: 0.92rem;
+      font-weight: 600;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background-color 0.15s ease;
+    }
+
+    .action-menu-btn:hover { background-color: var(--primary-light); }
+
+    .form-group { margin-bottom: 14px; }
+    .form-group label { display: block; font-size: 0.82rem; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
+    .form-group textarea, .form-group input, .form-group select { width: 100%; }
+    textarea { min-height: 80px; resize: vertical; }
+
+    .section-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 14px;
+      box-shadow: var(--card-shadow);
+      transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .section-title { font-size: 1.05rem; font-weight: 700; margin-bottom: 12px; color: var(--text-main); }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 14px; }
+    .stat-box { background: var(--card-bg); border: 1px solid var(--border-color); padding: 14px; border-radius: 10px; text-align: center; box-shadow: var(--card-shadow); }
+    .stat-num { font-size: 1.7rem; font-weight: 800; color: var(--primary); }
+    .stat-label { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+    .hint-text { font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; }
+
+    .prompt-box {
+      background: var(--primary-light);
+      color: var(--text-main);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.82rem;
+      padding: 14px;
+      border-radius: 10px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 260px;
+      overflow-y: auto;
+      border: 1px solid var(--border-color);
+    }
+
+    /* Color Theme Grid & Cards */
+    .theme-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 10px;
+    }
+
+    .theme-card {
+      border: 2px solid var(--border-color);
+      border-radius: 12px;
+      padding: 10px;
+      background: var(--card-bg);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: all 0.15s ease;
+      user-select: none;
+      text-align: left;
+    }
+
+    .theme-card:hover {
+      transform: translateY(-1px);
+      border-color: var(--primary);
+    }
+
+    .theme-card.active {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px var(--primary-light);
+      background: var(--primary-light);
+    }
+
+    .theme-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--text-main);
+    }
+
+    .theme-palette-preview {
+      display: flex;
+      height: 14px;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid rgba(0,0,0,0.08);
+    }
+
+    .theme-color-swatch {
+      flex: 1;
+    }
+
+    .theme-card-desc {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      line-height: 1.3;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <svg width="26" height="26" viewBox="0 0 512 512" style="display: block; border-radius: 8px; flex-shrink: 0; box-shadow: 0 1px 4px rgba(0,0,0,0.06);">
+        <rect width="512" height="512" rx="112" fill="var(--primary-light)" stroke="var(--border-color)" stroke-width="14"/>
+        <rect x="136" y="116" width="240" height="280" rx="24" fill="var(--mask-bg)" opacity="0.8" transform="rotate(-10 256 256)"/>
+        <rect x="136" y="116" width="240" height="280" rx="24" fill="var(--primary)" opacity="0.9" transform="rotate(6 256 256)"/>
+        <rect x="136" y="116" width="240" height="280" rx="24" fill="#ffffff"/>
+        <rect x="176" y="166" width="160" height="18" rx="9" fill="var(--primary)"/>
+        <rect x="176" y="202" width="120" height="12" rx="6" fill="var(--mask-bg)"/>
+        <rect x="176" y="226" width="140" height="12" rx="6" fill="#cbd5e1"/>
+        <rect x="176" y="320" width="70" height="24" rx="12" fill="var(--good-btn)"/>
+        <circle cx="316" cy="332" r="14" fill="var(--primary)"/>
+      </svg>
+      <span>Memorica</span>
+    </div>
+    <button class="theme-quick-btn" onclick="openThemeModal()" title="カラーテーマの変更">
+      <span>🎨</span>
+      <span class="theme-btn-text">テーマ</span>
+    </button>
+  </header>
+
+  <nav>
+    <button class="nav-btn active" onclick="switchView('decks')">📁 フォルダ</button>
+    <button class="nav-btn" onclick="switchView('study')">📖 学習</button>
+    <button class="nav-btn" onclick="switchView('settings')">⚙️ 設定</button>
+    <button class="nav-btn" onclick="switchView('other')">📊 統計/AI</button>
+  </nav>
+
+  <main>
+    <!-- 1. DECKS / FOLDER HIERARCHY VIEW -->
+    <div id="view-decks" class="view active">
+      <div class="deck-header">
+        <h2 style="font-size: 1.2rem; font-weight: 700;">デッキ・フォルダ管理</h2>
+        <div style="display: flex; gap: 6px;">
+          <select id="folder-sort-select" class="select-input" style="padding: 6px 10px; font-size: 0.82rem;" onchange="renderFoldersTree()">
+            <option value="name_asc">名前順 (昇順)</option>
+            <option value="name_desc">名前順 (降順)</option>
+            <option value="due_desc">復習カード多い順</option>
+            <option value="date_desc">作成日新しい順</option>
+          </select>
+          <button class="btn btn-primary btn-sm" style="width: auto;" onclick="openFolderModal()">+ 新規フォルダ</button>
+        </div>
+      </div>
+
+      <div id="folder-tree-container" class="folder-tree">
+        <!-- Folders rendered recursively -->
+      </div>
+    </div>
+
+    <!-- 2. STUDY SESSION VIEW -->
+    <div id="view-study" class="view">
+      <div class="study-header">
+        <div style="font-weight: 700;" id="active-study-target">すべてのフォルダ</div>
+        <div class="badge-counts">
+          <span class="count-tag new" id="tag-new">新規: 0</span>
+          <span class="count-tag learning" id="tag-learning">学習中: 0</span>
+          <span class="count-tag due" id="tag-due">復習: 0</span>
+        </div>
+      </div>
+
+      <div id="study-container">
+        <!-- Flashcard Rendered Here -->
+      </div>
+
+      <!-- Sticky Bottom Actions Bar for Study Mode -->
+      <div class="fixed-bottom-bar" id="study-bottom-bar" style="display: none;">
+        <div class="fixed-bottom-inner" id="study-bottom-content">
+          <!-- Dynamic Show Answer / Rating Buttons -->
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. SETTINGS VIEW -->
+    <div id="view-settings" class="view">
+      <!-- COLOR THEME SELECTOR -->
+      <div class="section-card">
+        <div class="section-title">🎨 カラーテーマ設定 (パステル調)</div>
+        <p class="hint-text" style="margin-bottom: 14px;">
+          白を基調とした目に優しいパステルカラーです。刺激的な強い色を排除し、長時間の暗記でも疲れにくい配色になっています。
+        </p>
+        <div class="theme-grid" id="theme-selection-grid">
+          <!-- Theme cards rendered here -->
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-title">デフォルト学習オプション (SRS設定)</div>
+        <div class="form-group">
+          <label>学習ステップ (例: 1m 10m または 30s 1m 1h 1d)</label>
+          <input type="text" id="opt-steps" class="text-input" value="1m 10m" placeholder="例: 1m 10m (s:秒, m:分, h:時間, d:日, w:週)">
+          <div style="font-size: 0.76rem; color: var(--text-muted); margin-top: 4px;">
+            単位記号: <code>s</code> (秒), <code>m</code> (分), <code>h</code> (時間), <code>d</code> (日), <code>w</code> (週)。単位なしの数値は分(m)として扱われます。
+          </div>
+        </div>
+        <div class="form-group">
+          <label>卒業間隔 (日)</label>
+          <input type="number" id="opt-grad" class="text-input" value="1">
+        </div>
+        <div class="form-group">
+          <label>簡単間隔 (日)</label>
+          <input type="number" id="opt-easy" class="text-input" value="4">
+        </div>
+        <div class="form-group">
+          <label>1日の新規カード上限数</label>
+          <input type="number" id="opt-new-limit" class="text-input" value="20">
+        </div>
+        <div class="form-group">
+          <label>1日の復習カード上限数</label>
+          <input type="number" id="opt-review-limit" class="text-input" value="100">
+        </div>
+        <div class="form-group" style="margin-top: 14px; margin-bottom: 18px;">
+          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 600;">
+            <input type="checkbox" id="opt-hide-cloze-guide" style="width: 18px; height: 18px; accent-color: var(--primary);">
+            穴埋め問題の操作説明ボックスを非表示にする
+          </label>
+        </div>
+        <button class="btn btn-primary" onclick="saveSettings()">設定を保存</button>
+      </div>
+
+      <div class="section-card">
+        <div class="section-title">全データ一括インポート・エクスポート</div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button class="btn btn-primary btn-sm" onclick="exportAllData()">📤 全データエクスポート</button>
+          <button class="btn btn-secondary btn-sm" onclick="document.getElementById('import-all-file').click()">📥 JSONインポート</button>
+          <input type="file" id="import-all-file" style="display:none" accept=".json" onchange="importAllData(event)">
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. OTHER / STATS VIEW -->
+    <div id="view-other" class="view">
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="stat-num" id="stat-total">0</div>
+          <div class="stat-label">総カード数</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num" id="stat-learned">0</div>
+          <div class="stat-label">習得済み</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num" id="stat-learning">0</div>
+          <div class="stat-label">学習中</div>
+        </div>
+      </div>
+
+      <!-- AI Prompt Box -->
+      <div class="section-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
+          <div class="section-title" style="margin-bottom:0;">🤖 教材作成用AIプロンプト</div>
+          <button class="btn btn-primary btn-sm" style="width:auto;" onclick="copyAiPrompt()">📋 プロンプトをコピー</button>
+        </div>
+        <p class="hint-text" style="margin-bottom: 10px; line-height: 1.5;">
+          ChatGPTやGemini等に以下のプロンプトを渡すことで、Memorica用のインポートJSONデータを自動生成できます。
+        </p>
+        <div class="prompt-box" id="ai-prompt-text">あなたは暗記アプリ「Memorica」用の教材データ作成プロのAIです。
+提供されたテキストや資料の内容から最適な形式（穴埋めカード・通常カード・表カード）を自動で判断し、以下のルールに従って完全なJSONデータ（配列形式）を作成してください（事前の確認や前置きは不要です）。
+
+【最重要ルール：カード形式の自動判断と構成】
+1. つなげて覚えるべき関連知識・文脈・因果関係・手順・対比は、細切れに分割せず必ず「1枚の穴埋めカード（または表カード）」にまとめて作成してください。
+2. 穴埋めカード ("type": "cloze") では、文脈を理解しながら記憶できるよう、1枚の文章の中に複数の重要語句・数値・キーワードを {{隠す言葉}} でマスキングしてください（1箇所しか穴がない細切れカードを量産せず、一連の流れが1枚で完結するようにしてください）。
+3. 独立した単発の用語定義やシンプルな1問1答に適しているものは 通常カード ("type": "basic") としてください。
+4. 複数の項目を比較・対比・分類して整理すべきものは 表カード ("type": "table") としてください。
+
+【カード形式仕様】
+1. 穴埋めカード ("type": "cloze"):
+   - "text": 問題文章。一連の文脈の中で隠したい重要語句・数値を {{隠す言葉}} で複数箇所マスキングする。（※文章内の改行には &lt;br&gt; を使用可能）
+   - "back": （任意）補足解説
+
+2. 通常カード ("type": "basic"):
+   - "front": 問題文（※カード内の改行には &lt;br&gt; を使用可能）
+   - "back": 解答（※改行コードまたは &lt;br&gt; で複数行が含まれる場合、行ごとの複数要素カードとして認識され、行ごとに個別の正誤登録・SRS期日管理が行われます）
+
+3. 表カード ("type": "table"):
+   - "headers": 列名の配列（例: ["用語", "意味", "特徴"] 等）
+   - "rows": 行データの2次元配列。セル内の隠したい語句を {{隠す言葉}} で囲む。
+
+【出力条件】
+・確認や前置き、解説テキストは一切出力せず、有効なJSONコードブロック（```json ... ```）のみを出力してください。
+・一問一答形式のみを作成する場合は、タブ区切りテキスト（問題 [TAB] 解答、カード内改行は &lt;br&gt; または通常改行）で出力することも可能です（改行を含むカードは行ごとに個別復習されます）。</div>
+      </div>
+
+
+    </div>
+  </main>
+
+  <!-- FOLDER ACTION MODAL -->
+  <div class="modal-overlay" id="folder-action-modal">
+    <div class="modal-content" style="max-width: 380px;">
+      <h3 style="margin-bottom: 12px;" id="folder-action-title">フォルダ操作</h3>
+      <input type="hidden" id="action-folder-id">
+      
+      <div class="action-menu-list">
+        <button class="action-menu-btn" onclick="triggerActionFromMenu('add_card')">➕ カードを追加</button>
+        <button class="action-menu-btn" onclick="triggerActionFromMenu('add_json')">📋 カード一括追加 (JSON / タブ区切り)</button>
+        <button class="action-menu-btn" onclick="triggerActionFromMenu('list_cards')">🗂️ 全カード一覧表示・一括編集</button>
+        <button class="action-menu-btn" onclick="triggerActionFromMenu('add_subfolder')">📁 サブフォルダを作成</button>
+        <button class="action-menu-btn" onclick="triggerActionFromMenu('deck_options')">⚙️ デッキ個別オプション</button>
+        <button class="action-menu-btn" onclick="triggerActionFromMenu('export_deck')">📤 このデッキをエクスポート</button>
+        <button class="action-menu-btn" style="color: #dc2626;" onclick="triggerActionFromMenu('delete_folder')">🗑️ フォルダを削除</button>
+      </div>
+
+      <div style="margin-top: 14px; text-align: right;">
+        <button class="btn btn-secondary btn-sm" onclick="closeModal('folder-action-modal')">閉じる</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOLDER CARDS MANAGER MODAL -->
+  <div class="modal-overlay" id="folder-cards-modal">
+    <div class="modal-content">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
+        <h3 id="folder-cards-modal-title">フォルダ内カード一覧</h3>
+        <button class="btn btn-secondary btn-sm" onclick="closeModal('folder-cards-modal')">閉じる</button>
+      </div>
+
+      <div style="margin-bottom: 10px;">
+        <input type="text" id="search-folder-cards-input" class="search-input" placeholder="カードを検索 (問題文・解答・キーワード)..." oninput="renderFolderCardsList()" style="width: 100%;">
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
+        <label style="font-size:0.85rem; font-weight:700;">
+          <input type="checkbox" id="select-all-folder-cards" onchange="toggleSelectAllFolderCards(this)"> 全選択
+        </label>
+        <button class="btn btn-secondary btn-sm" style="color:#dc2626;" onclick="batchDeleteSelectedCards()">🗑️ 選択カードを一括削除</button>
+      </div>
+
+      <div id="folder-cards-list-container" class="card-list" style="max-height: 55vh; overflow-y: auto;">
+        <!-- Card items with checkboxes -->
+      </div>
+    </div>
+  </div>
+
+  <!-- DECK OPTIONS MODAL -->
+  <div class="modal-overlay" id="deck-options-modal">
+    <div class="modal-content" style="max-width: 420px;">
+      <h3 style="margin-bottom: 14px;" id="deck-options-title">デッキ個別オプション</h3>
+      <input type="hidden" id="deck-options-folder-id">
+
+      <div class="form-group">
+        <label>学習ステップ (例: 1m 10m または 30s 1m 1h 1d)</label>
+        <input type="text" id="deck-opt-steps" class="text-input" placeholder="例: 1m 10m (s:秒, m:分, h:時間, d:日, w:週)">
+        <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 3px;">
+          単位: <code>s</code>(秒), <code>m</code>(分), <code>h</code>(時間), <code>d</code>(日), <code>w</code>(週)
+        </div>
+      </div>
+      <div class="form-group">
+        <label>卒業間隔 (日)</label>
+        <input type="number" id="deck-opt-grad" class="text-input">
+      </div>
+      <div class="form-group">
+        <label>簡単間隔 (日)</label>
+        <input type="number" id="deck-opt-easy" class="text-input">
+      </div>
+      <div class="form-group">
+        <label>1日の新規カード上限数</label>
+        <input type="number" id="deck-opt-new-limit" class="text-input">
+      </div>
+      <div class="form-group">
+        <label>1日の復習カード上限数</label>
+        <input type="number" id="deck-opt-review-limit" class="text-input">
+      </div>
+
+      <div style="display:flex; justify-content: flex-end; gap: 8px; margin-top: 16px;">
+        <button class="btn btn-secondary" onclick="closeModal('deck-options-modal')">キャンセル</button>
+        <button class="btn btn-primary" style="width: auto;" onclick="saveDeckOptionsFromModal()">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOLDER EDIT MODAL -->
+  <div class="modal-overlay" id="folder-modal">
+    <div class="modal-content" style="max-width: 420px;">
+      <h3 style="margin-bottom: 14px;" id="folder-modal-title">フォルダ作成/編集</h3>
+      <input type="hidden" id="edit-folder-id">
+      <div class="form-group">
+        <label>フォルダ名</label>
+        <input type="text" id="folder-name-input" class="text-input" placeholder="例: 日本史">
+      </div>
+      <div class="form-group">
+        <label>親フォルダ (階層移動・サブフォルダ化)</label>
+        <select id="folder-parent-select" class="select-input">
+          <option value="">(ルート / 親なし)</option>
+        </select>
+      </div>
+      <div style="display:flex; justify-content: flex-end; gap: 8px; margin-top: 16px;">
+        <button class="btn btn-secondary" onclick="closeModal('folder-modal')">キャンセル</button>
+        <button class="btn btn-primary" style="width: auto;" onclick="saveFolderFromModal()">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CARD EDIT MODAL -->
+  <div class="modal-overlay" id="card-modal">
+    <div class="modal-content">
+      <h3 style="margin-bottom: 14px;" id="card-modal-title">カード追加/編集</h3>
+      <input type="hidden" id="edit-card-id">
+
+      <div class="form-group">
+        <label>所属フォルダ</label>
+        <select id="card-folder-select" class="select-input">
+          <!-- Dynamic Folders -->
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>カード形式</label>
+        <select id="card-type-select" class="select-input" onchange="toggleModalFields()">
+          <option value="basic">通常 (一問一答)</option>
+          <option value="cloze">穴埋め文章 (Cloze)</option>
+          <option value="table">表・構造図 (Table Mask)</option>
+        </select>
+      </div>
+
+      <div id="form-standard">
+        <div class="form-group">
+          <label>表 (問題文) <span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">※ &lt;br&gt; で改行可能</span></label>
+          <textarea id="card-front-input" class="text-input" placeholder="問題文を入力... (&lt;br&gt;で改行可)"></textarea>
+        </div>
+        <div class="form-group">
+          <label>裏 (解答・解説) <span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">※ &lt;br&gt; で改行可能</span></label>
+          <textarea id="card-back-input" class="text-input" placeholder="解答・補足解説を入力... (&lt;br&gt;で改行可)"></textarea>
+        </div>
+      </div>
+
+      <div id="form-cloze" style="display:none;">
+        <div class="form-group">
+          <label>穴埋め文章 (隠したい箇所を {{隠す文字}} で囲む)</label>
+          <textarea id="card-cloze-input" class="text-input" placeholder="例: {{1603年}}、{{徳川家康}}が江戸幕府を開いた。"></textarea>
+        </div>
+        <div class="form-group">
+          <label>補足解説 (任意)</label>
+          <textarea id="card-cloze-back" class="text-input" placeholder="解説..."></textarea>
+        </div>
+      </div>
+
+      <div id="form-table" style="display:none;">
+        <div class="form-group">
+          <label>表データ (カンマ区切り。マスクは {{文字}})</label>
+          <textarea id="card-table-input" class="text-input" style="font-family: monospace;" placeholder="幕府, 成立年, 初代将軍&#10;鎌倉幕府, {{1185年}}, {{源頼朝}}&#10;江戸幕府, {{1603年}}, {{徳川家康}}"></textarea>
+        </div>
+        <div class="form-group">
+          <label>補足解説 (任意)</label>
+          <textarea id="card-table-back" class="text-input" placeholder="解説..."></textarea>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content: flex-end; gap: 8px; margin-top: 16px;">
+        <button class="btn btn-secondary" onclick="closeModal('card-modal')">キャンセル</button>
+        <button class="btn btn-primary" style="width: auto;" onclick="saveCardFromModal()">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DIRECT BULK ADD / IMPORT MODAL (JSON & TSV) -->
+  <div class="modal-overlay" id="json-paste-modal">
+    <div class="modal-content">
+      <h3 style="margin-bottom: 8px;">カード一括追加 (JSON / タブ区切りTSV)</h3>
+      <p class="hint-text" style="margin-bottom: 12px;">
+        JSONテキスト、またはタブ区切りテキスト（問題 [TAB] 解答）を直接貼り付けるか、ファイルを選択して一括追加できます。<br>
+        カード内に改行コード（改行または <code>&lt;br&gt;</code>）が含まれる場合、複数要素のカードとして一行ごとに正誤登録＆再出題（期日管理）が行われます。
+      </p>
+
+      <div class="form-group">
+        <label>追加先フォルダ</label>
+        <select id="json-folder-select" class="select-input">
+          <!-- Populated dynamically -->
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>ファイルを選択 (.json / .tsv / .txt) (任意)</label>
+        <input type="file" id="json-file-input" class="text-input" accept=".json,.tsv,.txt" onchange="handleJsonFileRead(event)">
+      </div>
+
+      <div class="form-group">
+        <label>テキスト貼り付け (JSON または 問題[TAB]解答)</label>
+        <textarea id="json-paste-input" class="text-input" style="font-family: monospace; min-height: 160px;" placeholder="【タブ区切りの場合 (問題 [TAB] 解答)】&#10;徳川家康が開いた幕府は？&#9;江戸幕府&#10;江戸幕府の成立年は？&lt;br&gt;（初代将軍：徳川家康）&#9;1603年&#10;&#10;【JSONの場合】&#10;[{&quot;type&quot;: &quot;basic&quot;, &quot;front&quot;: &quot;問題文&quot;, &quot;back&quot;: &quot;解答&quot;}]"></textarea>
+      </div>
+
+      <div style="display:flex; justify-content: flex-end; gap: 8px; margin-top: 16px;">
+        <button class="btn btn-secondary" onclick="closeModal('json-paste-modal')">キャンセル</button>
+        <button class="btn btn-primary" style="width: auto;" onclick="importPastedJson(event)">インポート実行</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DUE DATE EDIT MODAL -->
+  <div class="modal-overlay" id="date-modal">
+    <div class="modal-content" style="max-width: 380px;">
+      <h3 style="margin-bottom: 14px;">次回学習期日の調整</h3>
+      <input type="hidden" id="date-card-id">
+      <div class="form-group">
+        <label>次回学習日時</label>
+        <input type="datetime-local" id="manual-due-date" class="text-input">
+      </div>
+      <div style="display:flex; justify-content: flex-end; gap: 8px; margin-top: 16px;">
+        <button class="btn btn-secondary" onclick="closeModal('date-modal')">キャンセル</button>
+        <button class="btn btn-primary" style="width: auto;" onclick="saveManualDueDate()">設定保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- THEME SELECTOR MODAL -->
+  <div class="modal-overlay" id="theme-modal">
+    <div class="modal-content" style="max-width: 500px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-main);">🎨 カラーテーマ選択</h3>
+        <button class="btn btn-secondary btn-sm" style="width: auto; padding: 6px 12px;" onclick="closeModal('theme-modal')">✕ 閉じる</button>
+      </div>
+      <p class="hint-text" style="margin-bottom: 16px;">
+        白をベースにした目に優しいパステル調のテーマです。お好みの配色をタップして選択してください。
+      </p>
+      <div class="theme-grid" id="theme-modal-grid">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- DOUBLE CONFIRMATION DELETE MODAL -->
+  <div class="modal-overlay" id="confirm-delete-modal">
+    <div class="modal-content" style="max-width: 380px; text-align: center;">
+      <div style="font-size: 2.5rem; margin-bottom: 8px;">⚠️</div>
+      <h3 style="margin-bottom: 10px; color: #dc2626;" id="confirm-delete-title">削除の確認</h3>
+      <p style="font-size: 0.92rem; color: #334155; margin-bottom: 18px; line-height: 1.6;" id="confirm-delete-message">
+        本当に削除しますか？<br><span style="color: #dc2626; font-weight: 700;">（戻せない操作です）</span>
+      </p>
+      <div style="display: flex; gap: 8px; justify-content: center;">
+        <button class="btn btn-secondary" style="flex:1;" onclick="closeModal('confirm-delete-modal')">キャンセル</button>
+        <button class="btn btn-primary" style="flex:1; background-color: #dc2626;" id="confirm-delete-btn">削除する</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_CARDS = 'memorica_cards_v4';
+    const STORAGE_FOLDERS = 'memorica_folders_v4';
+    const STORAGE_SETTINGS = 'memorica_settings_v4';
+    const STORAGE_THEME = 'memorica_theme_v2';
+
+    const THEMES = [
+      {
+        id: 'sakura',
+        name: '🌸 サクラ・パステル',
+        subtitle: 'Sakura Pink',
+        desc: 'やわらかな桜色と清潔感あるオフホワイト。',
+        colors: ['#ffffff', '#fdfbfb', '#fce7ec', '#e06d88', '#fca5a5'],
+        metaColor: '#fdfbfb'
+      },
+      {
+        id: 'mint',
+        name: '🌿 ミント・ハーブ',
+        subtitle: 'Mint Green',
+        desc: '目に優しくリフレッシュできる癒やしの淡緑。',
+        colors: ['#ffffff', '#f7faf8', '#dcfce7', '#3db87f', '#86efac'],
+        metaColor: '#f7faf8'
+      },
+      {
+        id: 'sky',
+        name: '☁️ スカイ・ブルー',
+        subtitle: 'Sky Blue',
+        desc: '知性と集中力を高めるペールアクアブルー。',
+        colors: ['#ffffff', '#f7faff', '#e0f2fe', '#4a90e2', '#93c5fd'],
+        metaColor: '#f7faff'
+      },
+      {
+        id: 'lavender',
+        name: '🪻 ラベンダー',
+        subtitle: 'Lavender Violet',
+        desc: '落ち着きと上品さを兼ね備えた淡い藤色。',
+        colors: ['#ffffff', '#f9f8fd', '#ede9fe', '#8b78d6', '#c4b5fd'],
+        metaColor: '#f9f8fd'
+      },
+      {
+        id: 'latte',
+        name: '☕ カフェラテ',
+        subtitle: 'Warm Latte',
+        desc: '温もりと安心感のあるウォームベージュ。',
+        colors: ['#ffffff', '#faf8f4', '#fef3c7', '#a87b51', '#fed7aa'],
+        metaColor: '#faf8f4'
+      },
+      {
+        id: 'minimal',
+        name: '🌫️ クリーン・スレート',
+        subtitle: 'Minimal Slate',
+        desc: '余計な色味を抑えた端正なモノトーン。',
+        colors: ['#ffffff', '#fbfbfc', '#e2e8f0', '#64748b', '#cbd5e1'],
+        metaColor: '#fbfbfc'
+      }
+    ];
+
+    let currentTheme = 'sakura';
+    let folders = [];
+    let cards = [];
+    let settings = {
+      learningSteps: [1, 10],
+      graduatingInterval: 1,
+      easyInterval: 4,
+      dailyNewLimit: 20,
+      dailyReviewLimit: 100,
+      hideClozeGuide: false
+    };
+
+    let selectedFolderId = null;
+    let studyQueue = [];
+    let currentCardIndex = 0;
+    let isAnswerShown = false;
+    let pendingDeleteCallback = null;
+
+    // Cloze Interactive Session State
+    let currentMaskStates = {}; // { [maskIndex]: 'unrevealed' | 'correct' | 'incorrect' }
+    let maskLongPressTimer = null;
+    let maskLongPressedTriggered = false;
+
+    const defaultSampleFolders = [
+      { id: 'f_lang', name: '言語', parentId: null, createdAt: 1690000000000 },
+      { id: 'f_eng', name: '英語', parentId: 'f_lang', createdAt: 1690000100000 },
+      { id: 'f_hist', name: '歴史', parentId: null, createdAt: 1690000200000 },
+      { id: 'f_jphist', name: '日本史', parentId: 'f_hist', createdAt: 1690000300000 }
+    ];
+
+    const defaultSampleCards = [
+      {
+        id: 'c1', folderId: 'f_eng', type: 'basic',
+        front: 'resilient', back: '【形容詞】回復力のある、立ち直りの早い、しなやかな',
+        repetition: 0, interval: 0, ease: 2.5, step: 0, status: 'learning', dueDate: Date.now()
+      },
+      {
+        id: 'c2', folderId: 'f_jphist', type: 'cloze',
+        text: '{{1603年}}、{{徳川家康}}が{{江戸幕府}}を開き、約250年続く太平の世の基礎を築いた。',
+        back: '関ヶ原の戦い（1600年）を経て幕府が開かれました。',
+        repetition: 0, interval: 0, ease: 2.5, step: 0, status: 'learning', dueDate: Date.now()
+      },
+      {
+        id: 'c3', folderId: 'f_jphist', type: 'table',
+        headers: ['幕府', '成立年', '初代将軍'],
+        rows: [
+          ['鎌倉幕府', '{{1185年}}', '{{源頼朝}}'],
+          ['室町幕府', '{{1336年}}', '{{足利尊氏}}'],
+          ['江戸幕府', '{{1603年}}', '{{徳川家康}}']
+        ],
+        back: '主要武家政権の成立一覧表',
+        repetition: 0, interval: 0, ease: 2.5, step: 0, status: 'learning', dueDate: Date.now()
+      }
+    ];
+
+    // Helper to get card front text for card listings and identification
+    function getCardFrontText(card) {
+      if (!card) return '無題カード';
+      if (isCardMultiLine(card)) {
+        const items = getMultiLineCardItems(card);
+        const frontText = stripBrackets(card.front || '').trim();
+        if (frontText) {
+          const cleanF = frontText.replace(/<br\s*\/?>/gi, ' ').replace(/\n/g, ' ');
+          return `📝 ${cleanF} (${items.length}行)`;
+        }
+        return `📝 複数行カード (${items.length}行)`;
+      }
+      if (card.type === 'basic' || card.type === 'standard') {
+        const text = stripBrackets(card.front || '');
+        return text.replace(/<br\s*\/?>/gi, ' ').replace(/\n/g, ' ').trim() || '（問題文なし）';
+      }
+      if (card.type === 'cloze') {
+        const text = stripBrackets(card.text || card.front || '');
+        return text.replace(/<br\s*\/?>/gi, ' ').replace(/\n/g, ' ').trim() || '（穴埋め文章なし）';
+      }
+      if (card.type === 'table') {
+        if (card.headers && Array.isArray(card.headers) && card.headers.length > 0) {
+          return `表: ${card.headers.map(stripBrackets).join(' | ')}`;
+        }
+        if (card.rows && Array.isArray(card.rows) && card.rows.length > 0) {
+          return `表: ${card.rows[0].map(stripBrackets).join(' | ')}`;
+        }
+        return '（表データ）';
+      }
+      const raw = stripBrackets(card.front || card.text || card.title || '');
+      return raw.replace(/<br\s*\/?>/gi, ' ').replace(/\n/g, ' ').trim() || '無題カード';
+    }
+
+    // Helper to render HTML card text supporting <br> line breaks and \n safely
+    function renderCardHTMLText(str) {
+      if (!str) return '';
+      let safe = escapeHTML(stripBrackets(str));
+      safe = safe.replace(/&lt;br\s*\/?&gt;/gi, '<br>');
+      safe = safe.replace(/\n/g, '<br>');
+      return safe;
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadData();
+      initServiceWorker();
+      setupModalOverlayListeners();
+      setupConfirmDeleteListener();
+      setupInterruptionWatcher();
+      switchView('decks');
+    });
+
+    // Parse learning steps string supporting custom units (s: seconds, m: minutes, h: hours, d: days, w: weeks)
+    // Always returns an array of values in minutes (floats allowed, e.g. 30s -> 0.5m)
+    function parseLearningStepsString(str) {
+      if (!str || typeof str !== 'string') return [1, 10];
+      const tokens = str.trim().split(/\s+/).filter(t => t.length > 0);
+      const result = [];
+
+      tokens.forEach(tok => {
+        const match = tok.match(/^([\d.]+)([smhdw])?$/i);
+        if (match) {
+          const val = parseFloat(match[1]);
+          const unit = (match[2] || 'm').toLowerCase();
+          if (!isNaN(val) && val > 0) {
+            let minutes = val;
+            if (unit === 's') minutes = val / 60;
+            else if (unit === 'm') minutes = val;
+            else if (unit === 'h') minutes = val * 60;
+            else if (unit === 'd') minutes = val * 1440;
+            else if (unit === 'w') minutes = val * 10080;
+            result.push(minutes);
+          }
+        }
+      });
+
+      return result.length > 0 ? result : [1, 10];
+    }
+
+    // Format array of minute values into readable step strings (e.g. 0.5 -> "30s", 1 -> "1m", 60 -> "1h", 1440 -> "1d")
+    function formatLearningStepsArray(arr) {
+      if (!arr || !Array.isArray(arr) || arr.length === 0) return '1m 10m';
+      return arr.map(m => {
+        const num = parseFloat(m);
+        if (isNaN(num) || num <= 0) return '1m';
+        if (num < 1) {
+          const sec = Math.round(num * 60);
+          return `${sec}s`;
+        } else if (num % 10080 === 0) {
+          return `${num / 10080}w`;
+        } else if (num % 1440 === 0) {
+          return `${num / 1440}d`;
+        } else if (num % 60 === 0) {
+          return `${num / 60}h`;
+        } else {
+          return Number.isInteger(num) ? `${num}m` : `${parseFloat(num.toFixed(2))}m`;
+        }
+      }).join(' ');
+    }
+
+    // Multi-line & Line-based Flashcard Helper Functions
+    function splitTextLines(text) {
+      if (!text) return [];
+      let s = String(text).replace(/<br\s*\/?>/gi, '\n');
+      s = s.replace(/\\r\\n/g, '\n').replace(/\\n/g, '\n').replace(/\\r/g, '\n');
+      return s.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
+    }
+
+    function getMultiLineCardItems(card) {
+      if (!card) return [];
+      const frontLines = splitTextLines(card.front);
+      const backLines = splitTextLines(card.back);
+
+      // パターンA: front と back の両方が複数行で、行数が一致する場合（行ペア対応）
+      if (frontLines.length > 1 && backLines.length === frontLines.length) {
+        return frontLines.map((fl, idx) => ({
+          label: fl,
+          content: backLines[idx],
+          raw: `${fl}: ${backLines[idx]}`
+        }));
+      }
+
+      // パターンB: back に複数行が含まれる場合（典型的な複数行解答）
+      if (backLines.length > 1) {
+        return backLines.map(bl => {
+          const m = bl.match(/^(.+?)([:：\t]| - | ― )(.+)$/);
+          if (m) {
+            return {
+              label: m[1] + (m[2].trim() === '-' || m[2].trim() === '―' ? ' : ' : m[2]),
+              content: m[3].trim(),
+              raw: bl
+            };
+          }
+          return {
+            label: '',
+            content: bl,
+            raw: bl
+          };
+        });
+      }
+
+      // パターンC: back が空で、front に複数行があり各行に区切り文字がある場合
+      if (!card.back || card.back.trim() === '') {
+        if (frontLines.length > 1) {
+          const allHaveSep = frontLines.every(fl => /^(.+?)([:：\t]| - | ― )(.+)$/.test(fl));
+          if (allHaveSep) {
+            return frontLines.map(fl => {
+              const m = fl.match(/^(.+?)([:：\t]| - | ― )(.+)$/);
+              return {
+                label: m[1] + (m[2].trim() === '-' || m[2].trim() === '―' ? ' : ' : m[2]),
+                content: m[3].trim(),
+                raw: fl
+              };
+            });
+          }
+        }
+      }
+
+      return [];
+    }
+
+    function isCardMultiLine(card) {
+      if (!card) return false;
+      // 既存の cloze で {{ }} を含む場合は cloze 扱い
+      if (card.type === 'cloze' && (card.text || card.front || '').includes('{{')) return false;
+      // 既存の table で rows がある場合は table 扱い
+      if (card.type === 'table' && card.rows && card.rows.length > 0) return false;
+
+      const items = getMultiLineCardItems(card);
+      return items.length > 1;
+    }
+
+    function formatMultiLineCardHTML(card) {
+      const items = getMultiLineCardItems(card);
+      const frontLines = splitTextLines(card.front);
+      const backLines = splitTextLines(card.back);
+
+      let headerHTML = '';
+      if (card.front && card.front.trim() && (frontLines.length === 1 || backLines.length !== frontLines.length)) {
+        headerHTML = `<div class="multiline-card-question" style="font-size: 1.15rem; font-weight: 700; margin-bottom: 16px; line-height: 1.6; color: var(--text-main); word-break: break-word;">${renderCardHTMLText(card.front)}</div>`;
+      }
+
+      let listHTML = '<div class="multiline-card-list">';
+
+      items.forEach((item, idx) => {
+        const isDue = isMaskDue(card, idx);
+        const state = currentMaskStates[idx] || 'unrevealed';
+
+        let stateClass = '';
+        let badgeText = '';
+
+        if (state === 'correct') {
+          stateClass = 'revealed correct';
+          badgeText = '✓';
+        } else if (state === 'incorrect') {
+          stateClass = 'revealed incorrect';
+          badgeText = '✕';
+        }
+
+        let maskElement = '';
+        if (!isDue) {
+          // 期日が来ていない行は最初から表示されている状態
+          maskElement = `<span class="mask-item not-due-open" title="この行は復習期日前です">${escapeHTML(stripBrackets(item.content))}</span>`;
+        } else {
+          // 期日が来た行のみ伏せられたマスク状態
+          maskElement = `<span class="mask-item ${stateClass}" data-mask-idx="${idx}" onpointerdown="handleMaskPointerDown(event, ${idx})" onpointerup="handleMaskPointerUp(event, ${idx})" onpointercancel="handleMaskPointerCancel(event, ${idx})" onpointerleave="handleMaskPointerCancel(event, ${idx})" oncontextmenu="handleMaskContextMenu(event, ${idx})"><span>${escapeHTML(stripBrackets(item.content))}</span><span class="mask-badge">${badgeText}</span></span>`;
+        }
+
+        const labelHTML = item.label ? `<span class="multiline-row-label">${escapeHTML(stripBrackets(item.label))}</span>` : '';
+
+        listHTML += `
+          <div class="multiline-item-row">
+            <div class="multiline-row-left">
+              <span class="multiline-row-index">#${idx + 1}</span>
+              ${labelHTML}
+              <div class="multiline-row-target">${maskElement}</div>
+            </div>
+          </div>
+        `;
+      });
+
+      listHTML += '</div>';
+
+      return headerHTML + listHTML;
+    }
+
+    // Cloze & Blank Scheduling Helper Functions
+    function getCardMaskCount(card) {
+      if (!card) return 0;
+      if (card.type === 'cloze') {
+        const text = card.text || card.front || '';
+        const matches = text.match(/\{\{(.*?)\}\}/g);
+        return matches ? matches.length : 0;
+      } else if (card.type === 'table') {
+        if (card.rows && Array.isArray(card.rows)) {
+          let count = 0;
+          card.rows.forEach(r => {
+            if (Array.isArray(r)) {
+              r.forEach(cell => {
+                const matches = String(cell || '').match(/\{\{(.*?)\}\}/g);
+                if (matches) count += matches.length;
+              });
+            } else {
+              const matches = String(r || '').match(/\{\{(.*?)\}\}/g);
+              if (matches) count += matches.length;
+            }
+          });
+          return count;
+        }
+      }
+
+      if (isCardMultiLine(card)) {
+        return getMultiLineCardItems(card).length;
+      }
+      return 0;
+    }
+
+    function ensureClozeSchedules(card) {
+      if (!card || (card.type !== 'cloze' && card.type !== 'table' && !isCardMultiLine(card))) return;
+      const maskCount = getCardMaskCount(card);
+      if (maskCount === 0) return;
+
+      if (!card.clozeSchedules || typeof card.clozeSchedules !== 'object') {
+        card.clozeSchedules = {};
+      }
+
+      for (let i = 0; i < maskCount; i++) {
+        if (!card.clozeSchedules[i]) {
+          card.clozeSchedules[i] = {
+            step: card.step !== undefined ? card.step : 0,
+            repetition: card.repetition !== undefined ? card.repetition : 0,
+            interval: card.interval !== undefined ? card.interval : 0,
+            ease: card.ease !== undefined ? card.ease : 2.5,
+            status: card.status || 'learning',
+            dueDate: card.dueDate || Date.now()
+          };
+        }
+      }
+    }
+
+    function syncCardFromClozeSchedules(card) {
+      if (!card || (card.type !== 'cloze' && card.type !== 'table' && !isCardMultiLine(card))) return;
+      ensureClozeSchedules(card);
+      const schedules = Object.values(card.clozeSchedules || {});
+      if (schedules.length === 0) return;
+
+      // Card overall due date is the earliest due date among all blanks / lines
+      card.dueDate = Math.min(...schedules.map(s => s.dueDate || Date.now()));
+      card.interval = Math.min(...schedules.map(s => s.interval || 0));
+      card.repetition = Math.max(...schedules.map(s => s.repetition || 0));
+      
+      const anyReview = schedules.some(s => s.status === 'review');
+      card.status = anyReview ? 'review' : 'learning';
+    }
+
+    function isCardDue(card, now = Date.now()) {
+      if (!card) return false;
+      if (card.type === 'cloze' || card.type === 'table' || isCardMultiLine(card)) {
+        ensureClozeSchedules(card);
+        const schedules = Object.values(card.clozeSchedules || {});
+        if (schedules.length > 0) {
+          // If ANY blank or line is due, the whole card is considered due for review
+          return schedules.some(s => (s.dueDate || 0) <= now);
+        }
+      }
+      return (card.dueDate || 0) <= now;
+    }
+
+    function isMaskDue(card, maskIdx, now = Date.now()) {
+      if (!card || !card.clozeSchedules || !card.clozeSchedules[maskIdx]) return false;
+      return (card.clozeSchedules[maskIdx].dueDate || 0) <= now;
+    }
+
+    function isCardReviewOrInProgress(card) {
+      if (card.type === 'cloze' || card.type === 'table' || isCardMultiLine(card)) {
+        ensureClozeSchedules(card);
+        const schedules = Object.values(card.clozeSchedules || {});
+        return schedules.some(s => s.status === 'review' || (s.status === 'learning' && (s.repetition || 0) > 0));
+      }
+      return card.status === 'review' || (card.status === 'learning' && (card.repetition || 0) > 0);
+    }
+
+    function isCardNew(card) {
+      if (card.type === 'cloze' || card.type === 'table' || isCardMultiLine(card)) {
+        ensureClozeSchedules(card);
+        const schedules = Object.values(card.clozeSchedules || {});
+        return schedules.every(s => !s.repetition || s.repetition === 0);
+      }
+      return !card.repetition || card.repetition === 0;
+    }
+
+    // Dynamic Queue Interruption
+    function injectDueCardsIntoQueue() {
+      const now = Date.now();
+      let targetCards = cards;
+      if (selectedFolderId) {
+        const descendantIds = getSubFolderIds(selectedFolderId);
+        targetCards = cards.filter(c => descendantIds.includes(c.folderId));
+      }
+
+      // Check remaining cards in queue
+      const remainingQueue = studyQueue.slice(currentCardIndex + 1);
+      const inQueueIds = new Set(remainingQueue.map(c => c.id));
+      const currentCard = studyQueue[currentCardIndex];
+      if (currentCard) inQueueIds.add(currentCard.id);
+
+      const newDueCards = targetCards.filter(c => isCardDue(c, now) && !inQueueIds.has(c.id));
+
+      if (newDueCards.length > 0) {
+        // Insert right after current card to interrupt smoothly without notifying
+        studyQueue.splice(currentCardIndex + 1, 0, ...newDueCards);
+        updateStudyCounts(targetCards);
+      }
+    }
+
+    function setupInterruptionWatcher() {
+      setInterval(() => {
+        const studyView = document.getElementById('view-study');
+        if (studyView && studyView.classList.contains('active') && studyQueue.length > 0 && currentCardIndex < studyQueue.length) {
+          injectDueCardsIntoQueue();
+        }
+      }, 4000);
+    }
+
+    function loadData() {
+      // 1. Load Theme
+      const savedTheme = localStorage.getItem(STORAGE_THEME) || 'sakura';
+      applyTheme(savedTheme, false);
+
+      const sS = localStorage.getItem(STORAGE_SETTINGS);
+      if (sS) {
+        try {
+          const parsed = JSON.parse(sS);
+          settings = { ...settings, ...parsed };
+          if (settings.dailyNewLimit === undefined) settings.dailyNewLimit = parsed.dailyLimit !== undefined ? parsed.dailyLimit : 20;
+          if (settings.dailyReviewLimit === undefined) settings.dailyReviewLimit = 100;
+        } catch(e){}
+      }
+      if (localStorage.getItem('memorica_hide_cloze_guide') === 'true') {
+        settings.hideClozeGuide = true;
+      }
+      const sF = localStorage.getItem(STORAGE_FOLDERS);
+      if (sF) { try { folders = JSON.parse(sF); } catch(e){} } else { folders = defaultSampleFolders; saveFoldersData(); }
+      const sC = localStorage.getItem(STORAGE_CARDS);
+      if (sC) { 
+        try { 
+          cards = JSON.parse(sC); 
+          // Ensure cloze and multiline schedules for all existing cards
+          cards.forEach(c => {
+            if (c.type === 'cloze' || c.type === 'table' || isCardMultiLine(c)) {
+              ensureClozeSchedules(c);
+              syncCardFromClozeSchedules(c);
+            }
+          });
+        } catch(e){} 
+      } else { 
+        cards = defaultSampleCards; 
+        cards.forEach(c => {
+          if (c.type === 'cloze' || c.type === 'table' || isCardMultiLine(c)) {
+            ensureClozeSchedules(c);
+            syncCardFromClozeSchedules(c);
+          }
+        });
+        saveCardsData(); 
+      }
+    }
+
+    function applyTheme(themeId, save = true) {
+      const themeObj = THEMES.find(t => t.id === themeId) || THEMES[0];
+      currentTheme = themeObj.id;
+      document.documentElement.setAttribute('data-theme', currentTheme);
+
+      // Update mobile browser status bar theme color
+      const metaTheme = document.querySelector('meta[name="theme-color"]');
+      if (metaTheme) {
+        metaTheme.setAttribute('content', themeObj.metaColor);
+      }
+
+      if (save) {
+        localStorage.setItem(STORAGE_THEME, currentTheme);
+      }
+
+      renderThemeCards();
+    }
+
+    function openThemeModal() {
+      renderThemeCards();
+      document.getElementById('theme-modal').classList.add('active');
+    }
+
+    function renderThemeCards() {
+      const grids = [
+        document.getElementById('theme-selection-grid'),
+        document.getElementById('theme-modal-grid')
+      ];
+
+      grids.forEach(grid => {
+        if (!grid) return;
+        grid.innerHTML = THEMES.map(t => {
+          const isActive = t.id === currentTheme;
+          return `
+            <div class="theme-card ${isActive ? 'active' : ''}" onclick="applyTheme('${t.id}')">
+              <div class="theme-card-header">
+                <span>${escapeHTML(t.name)}</span>
+                ${isActive ? '<span style="color: var(--primary); font-size: 0.9rem;">✓</span>' : ''}
+              </div>
+              <div class="theme-palette-preview">
+                ${t.colors.map(c => `<div class="theme-color-swatch" style="background-color: ${c};"></div>`).join('')}
+              </div>
+              <div class="theme-card-desc">${escapeHTML(t.desc)}</div>
+            </div>
+          `;
+        }).join('');
+      });
+    }
+
+    function saveCardsData() { localStorage.setItem(STORAGE_CARDS, JSON.stringify(cards)); }
+    function saveFoldersData() { localStorage.setItem(STORAGE_FOLDERS, JSON.stringify(folders)); }
+    function saveSettingsData() { localStorage.setItem(STORAGE_SETTINGS, JSON.stringify(settings)); }
+
+    // Service Worker Registration
+    function initServiceWorker() {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js', { scope: './' })
+          .then(reg => {
+            console.log('ServiceWorker registered with scope:', reg.scope);
+            reg.update();
+          })
+          .catch(err => {
+            console.warn('ServiceWorker registration failed:', err);
+          });
+      }
+    }
+
+    // Modal Backdrop Click to Close
+    function setupModalOverlayListeners() {
+      document.querySelectorAll('.modal-overlay').forEach(modal => {
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) {
+            modal.classList.remove('active');
+          }
+        });
+      });
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('active');
+    }
+
+    // Double Confirmation Modal System
+    function setupConfirmDeleteListener() {
+      const btn = document.getElementById('confirm-delete-btn');
+      if (btn) {
+        btn.onclick = function() {
+          if (pendingDeleteCallback) {
+            const cb = pendingDeleteCallback;
+            pendingDeleteCallback = null;
+            closeModal('confirm-delete-modal');
+            cb();
+          } else {
+            closeModal('confirm-delete-modal');
+          }
+        };
+      }
+    }
+
+    function showConfirmDeleteModal(title, message, onConfirm) {
+      document.getElementById('confirm-delete-title').innerText = title || '削除の確認';
+      document.getElementById('confirm-delete-message').innerHTML = message || '本当に削除しますか？<br><span style="color: #dc2626; font-weight: 700;">（戻せない操作です）</span>';
+      pendingDeleteCallback = onConfirm;
+      document.getElementById('confirm-delete-modal').classList.add('active');
+    }
+
+    // Navigation
+    function switchView(viewName) {
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+
+      // Hide study bottom bar when leaving study view
+      const bottomBar = document.getElementById('study-bottom-bar');
+      if (bottomBar) bottomBar.style.display = 'none';
+
+      const target = document.getElementById(`view-${viewName}`);
+      if (target) target.classList.add('active');
+
+      const btnMap = { decks: 0, study: 1, settings: 2, other: 3 };
+      if (btnMap[viewName] !== undefined) {
+        document.querySelectorAll('.nav-btn')[btnMap[viewName]].classList.add('active');
+      }
+
+      if (viewName === 'decks') renderFoldersTree();
+      if (viewName === 'study') prepareStudySession();
+      if (viewName === 'settings') loadSettingsToUI();
+      if (viewName === 'other') renderStatsView();
+    }
+
+    function getSubFolderIds(parentFolderId) {
+      let result = [parentFolderId];
+      const children = folders.filter(f => f.parentId === parentFolderId);
+      children.forEach(child => {
+        result = result.concat(getSubFolderIds(child.id));
+      });
+      return result;
+    }
+
+    function getFolderCardCounts(folderId) {
+      const now = Date.now();
+      let targetFolderIds = folderId ? getSubFolderIds(folderId) : folders.map(f => f.id);
+      const targetCards = cards.filter(c => targetFolderIds.includes(c.folderId));
+
+      const due = targetCards.filter(c => isCardDue(c, now) && isCardReviewOrInProgress(c)).length;
+      const newCount = targetCards.filter(c => isCardDue(c, now) && isCardNew(c)).length;
+      const total = targetCards.length;
+
+      return { due, newCount, total };
+    }
+
+    // Folders Tree & Long Press
+    let longPressTimer = null;
+    let collapsedFolderIds = new Set();
+
+    function toggleFolderCollapse(e, folderId) {
+      e.stopPropagation();
+      if (collapsedFolderIds.has(folderId)) {
+        collapsedFolderIds.delete(folderId);
+      } else {
+        collapsedFolderIds.add(folderId);
+      }
+      renderFoldersTree();
+    }
+
+    function renderFoldersTree() {
+      const container = document.getElementById('folder-tree-container');
+      const sortVal = document.getElementById('folder-sort-select').value;
+
+      let rootFolders = folders.filter(f => !f.parentId);
+      sortFoldersArray(rootFolders, sortVal);
+
+      if (rootFolders.length === 0 && folders.length === 0) {
+        container.innerHTML = '<div style="text-align: center; padding: 24px; color: var(--text-muted);">フォルダが存在しません。</div>';
+        return;
+      }
+
+      let html = '';
+      rootFolders.forEach(folder => {
+        html += renderFolderNodeRecursive(folder, 0, sortVal);
+      });
+      container.innerHTML = html;
+    }
+
+    function sortFoldersArray(arr, sortVal) {
+      arr.sort((a, b) => {
+        if (sortVal === 'name_asc') return a.name.localeCompare(b.name, 'ja');
+        if (sortVal === 'name_desc') return b.name.localeCompare(a.name, 'ja');
+        if (sortVal === 'date_desc') return (b.createdAt || 0) - (a.createdAt || 0);
+        if (sortVal === 'due_desc') return getFolderCardCounts(b.id).due - getFolderCardCounts(a.id).due;
+        return 0;
+      });
+    }
+
+    function renderFolderNodeRecursive(folder, level, sortVal) {
+      const counts = getFolderCardCounts(folder.id);
+      const indentPx = level * 18;
+
+      let children = folders.filter(f => f.parentId === folder.id);
+      sortFoldersArray(children, sortVal);
+
+      const hasChildren = children.length > 0;
+      const isCollapsed = collapsedFolderIds.has(folder.id);
+
+      let toggleBtnHTML = '';
+      if (hasChildren) {
+        const arrow = isCollapsed ? '▶' : '▼';
+        toggleBtnHTML = `<button class="folder-toggle-btn" onclick="toggleFolderCollapse(event, '${folder.id}')" title="${isCollapsed ? '展開' : '折りたたむ'}">${arrow}</button>`;
+      } else if (level > 0) {
+        toggleBtnHTML = `<span class="folder-toggle-spacer"></span>`;
+      }
+
+      let childrenHTML = '';
+      if (hasChildren && !isCollapsed) {
+        childrenHTML = children.map(c => renderFolderNodeRecursive(c, level + 1, sortVal)).join('');
+      }
+
+      return `
+        <div class="folder-node" style="margin-left: ${indentPx}px;"
+             ontouchstart="handleTouchStart(event, '${folder.id}')"
+             ontouchend="clearTouchTimer()" ontouchmove="clearTouchTimer()"
+             oncontextmenu="handleContextMenu(event, '${folder.id}')">
+          <div class="folder-row">
+            <div class="folder-info">
+              ${toggleBtnHTML}
+              <span class="folder-name">${escapeHTML(folder.name)}</span>
+            </div>
+            <div class="folder-badges">
+              ${counts.due > 0 ? `<span class="folder-badge badge-due">復習 ${counts.due}</span>` : ''}
+              ${counts.newCount > 0 ? `<span class="folder-badge badge-new">新規 ${counts.newCount}</span>` : ''}
+              <span class="folder-badge badge-total">全 ${counts.total}枚</span>
+            </div>
+            <div class="folder-actions">
+              <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); startStudyForFolder('${folder.id}')">📖 学習</button>
+              <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); openFolderActionModal('${folder.id}')">⚙️ メニュー</button>
+            </div>
+          </div>
+        </div>
+        ${childrenHTML}
+      `;
+    }
+
+    function handleTouchStart(e, folderId) {
+      longPressTimer = setTimeout(() => openFolderActionModal(folderId), 500);
+    }
+    function clearTouchTimer() { if (longPressTimer) clearTimeout(longPressTimer); }
+    function handleContextMenu(e, folderId) { e.preventDefault(); openFolderActionModal(folderId); }
+
+    function startStudyForFolder(folderId) {
+      selectedFolderId = folderId;
+      switchView('study');
+    }
+
+    // Folder Actions Menu
+    function openFolderActionModal(folderId) {
+      const folder = folders.find(f => f.id === folderId);
+      if (!folder) return;
+      document.getElementById('action-folder-id').value = folderId;
+      document.getElementById('folder-action-title').innerText = `📁 ${folder.name}`;
+      document.getElementById('folder-action-modal').classList.add('active');
+    }
+
+    function triggerActionFromMenu(action) {
+      const folderId = document.getElementById('action-folder-id').value;
+      closeModal('folder-action-modal');
+
+      if (action === 'add_card') openCardModal(null, folderId);
+      if (action === 'add_json') openJsonPasteModal(folderId);
+      if (action === 'list_cards') openFolderCardsModal(folderId);
+      if (action === 'add_subfolder') openFolderModal(null, folderId);
+      if (action === 'deck_options') openDeckOptionsModal(folderId);
+      if (action === 'export_deck') exportSingleDeck(folderId);
+      if (action === 'delete_folder') deleteFolder(folderId);
+    }
+
+    // Folder Cards Manager Modal (Includes All Subfolders & Search)
+    function openFolderCardsModal(folderId) {
+      const folder = folders.find(f => f.id === folderId);
+      if (!folder) return;
+
+      document.getElementById('action-folder-id').value = folderId;
+      document.getElementById('folder-cards-modal-title').innerText = `📁 ${folder.name} 内の全カード`;
+
+      const searchInput = document.getElementById('search-folder-cards-input');
+      if (searchInput) searchInput.value = '';
+
+      const selectAllCb = document.getElementById('select-all-folder-cards');
+      if (selectAllCb) selectAllCb.checked = false;
+
+      renderFolderCardsList();
+      document.getElementById('folder-cards-modal').classList.add('active');
+    }
+
+    function renderFolderCardsList() {
+      const folderId = document.getElementById('action-folder-id').value;
+      const folder = folders.find(f => f.id === folderId);
+      if (!folder) return;
+
+      const container = document.getElementById('folder-cards-list-container');
+      const searchKey = (document.getElementById('search-folder-cards-input')?.value || '').toLowerCase().trim();
+
+      const allSubFolderIds = getSubFolderIds(folderId);
+      let folderCards = cards.filter(c => allSubFolderIds.includes(c.folderId));
+
+      if (searchKey) {
+        folderCards = folderCards.filter(c => {
+          const front = (c.front || '').toLowerCase();
+          const back = (c.back || '').toLowerCase();
+          const text = (c.text || '').toLowerCase();
+          const headers = c.headers ? c.headers.join(' ').toLowerCase() : '';
+          const rows = c.rows ? c.rows.map(r => r.join(' ')).join(' ').toLowerCase() : '';
+          return front.includes(searchKey) || back.includes(searchKey) || text.includes(searchKey) || headers.includes(searchKey) || rows.includes(searchKey);
+        });
+      }
+
+      if (folderCards.length === 0) {
+        container.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--text-muted);">' + (searchKey ? '検索条件に一致するカードはありません' : 'カードはありません') + '</div>';
+      } else {
+        const typeNames = { basic: '通常', standard: '通常', cloze: '穴埋め', table: '表' };
+        container.innerHTML = folderCards.map(c => {
+          const cF = folders.find(f => f.id === c.folderId);
+          const displayFront = getCardFrontText(c);
+          return `
+            <div class="card-item">
+              <div style="margin-right: 8px;" onclick="event.stopPropagation();">
+                <input type="checkbox" class="folder-card-checkbox" value="${c.id}">
+              </div>
+              <div class="card-item-info" onclick="openCardModal('${c.id}')" style="cursor:pointer;">
+                <div class="card-item-title">${escapeHTML(displayFront)}</div>
+                <div class="card-item-sub">
+                  <span style="background:#e0e7ff; color:#3730a3; padding:2px 6px; border-radius:4px;">📁 ${escapeHTML(cF ? cF.name : '未分類')}</span>
+                  <span style="background:#e2e8f0; padding: 2px 6px; border-radius:4px;">${typeNames[c.type] || '通常'}</span>
+                </div>
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); openCardModal('${c.id}')">編集</button>
+              <button class="btn btn-secondary btn-sm" style="color:#dc2626;" onclick="event.stopPropagation(); deleteCard('${c.id}')">🗑️</button>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    function toggleSelectAllFolderCards(chk) {
+      document.querySelectorAll('.folder-card-checkbox').forEach(cb => cb.checked = chk.checked);
+    }
+
+    // Batch Card Deletion with Double Confirmation Modal
+    function batchDeleteSelectedCards() {
+      const selected = Array.from(document.querySelectorAll('.folder-card-checkbox:checked')).map(cb => cb.value);
+      if (selected.length === 0) {
+        alert('削除するカードを選択してください。');
+        return;
+      }
+
+      showConfirmDeleteModal(
+        '選択カードの一括削除',
+        `選択した <strong>${selected.length}</strong> 件のカードを削除しますか？<br><span style="color: #dc2626; font-weight: 700;">本当に削除しますか？（戻せない操作です）</span>`,
+        () => {
+          cards = cards.filter(c => !selected.includes(c.id));
+          saveCardsData();
+          closeModal('folder-cards-modal');
+          renderFoldersTree();
+          renderCardsList();
+          renderStatsView();
+        }
+      );
+    }
+
+    // Single Card Deletion with Double Confirmation Modal
+    function deleteCard(id) {
+      const card = cards.find(c => c.id === id);
+      const title = card ? getCardFrontText(card) : 'このカード';
+
+      showConfirmDeleteModal(
+        'カードの削除',
+        `カード「<strong>${escapeHTML(title)}</strong>」を削除しますか？<br><span style="color: #dc2626; font-weight: 700;">本当に削除しますか？（戻せない操作です）</span>`,
+        () => {
+          cards = cards.filter(c => c.id !== id);
+          saveCardsData();
+          renderCardsList();
+          renderFoldersTree();
+          renderStatsView();
+
+          // Refresh folder cards list if manager modal is active
+          const activeFolderActionId = document.getElementById('action-folder-id').value;
+          if (document.getElementById('folder-cards-modal').classList.contains('active') && activeFolderActionId) {
+            renderFolderCardsList();
+          }
+        }
+      );
+    }
+
+    // Folder Deletion with Double Confirmation Modal
+    function deleteFolder(id) {
+      const folderObj = folders.find(f => f.id === id);
+      if (!folderObj) return;
+
+      showConfirmDeleteModal(
+        'フォルダの削除',
+        `フォルダ「<strong>${escapeHTML(folderObj.name)}</strong>」および配下の全サブフォルダ・カードを削除しますか？<br><span style="color: #dc2626; font-weight: 700;">本当に削除しますか？（戻せない操作です）</span>`,
+        () => {
+          const idsToDelete = getSubFolderIds(id);
+          folders = folders.filter(f => !idsToDelete.includes(f.id));
+          cards = cards.filter(c => !idsToDelete.includes(c.folderId));
+          if (idsToDelete.includes(selectedFolderId)) {
+            selectedFolderId = null;
+          }
+          saveFoldersData();
+          saveCardsData();
+          renderFoldersTree();
+          renderCardsList();
+          renderStatsView();
+        }
+      );
+    }
+
+    // Deck Options Modal
+    function openDeckOptionsModal(folderId) {
+      const folder = folders.find(f => f.id === folderId);
+      if (!folder) return;
+      document.getElementById('deck-options-folder-id').value = folderId;
+      document.getElementById('deck-options-title').innerText = `⚙️ ${folder.name} オプション`;
+      const opt = folder.options || {};
+      document.getElementById('deck-opt-steps').value = formatLearningStepsArray(opt.learningSteps || settings.learningSteps || [1, 10]);
+      document.getElementById('deck-opt-grad').value = opt.graduatingInterval !== undefined ? opt.graduatingInterval : (settings.graduatingInterval || 1);
+      document.getElementById('deck-opt-easy').value = opt.easyInterval !== undefined ? opt.easyInterval : (settings.easyInterval || 4);
+      document.getElementById('deck-opt-new-limit').value = opt.dailyNewLimit !== undefined ? opt.dailyNewLimit : (opt.dailyLimit !== undefined ? opt.dailyLimit : settings.dailyNewLimit || 20);
+      document.getElementById('deck-opt-review-limit').value = opt.dailyReviewLimit !== undefined ? opt.dailyReviewLimit : (settings.dailyReviewLimit || 100);
+      document.getElementById('deck-options-modal').classList.add('active');
+    }
+
+    function saveDeckOptionsFromModal() {
+      const folderId = document.getElementById('deck-options-folder-id').value;
+      const folder = folders.find(f => f.id === folderId);
+      if (!folder) return;
+
+      const stepsStr = document.getElementById('deck-opt-steps').value.trim();
+      const stepsArr = parseLearningStepsString(stepsStr);
+
+      folder.options = {
+        learningSteps: stepsArr.length ? stepsArr : (settings.learningSteps || [1, 10]),
+        graduatingInterval: Number(document.getElementById('deck-opt-grad').value) || (settings.graduatingInterval || 1),
+        easyInterval: Number(document.getElementById('deck-opt-easy').value) || (settings.easyInterval || 4),
+        dailyNewLimit: Number(document.getElementById('deck-opt-new-limit').value) || (settings.dailyNewLimit || 20),
+        dailyReviewLimit: Number(document.getElementById('deck-opt-review-limit').value) || (settings.dailyReviewLimit || 100)
+      };
+
+      saveFoldersData();
+      closeModal('deck-options-modal');
+      alert('設定を保存しました。');
+    }
+
+    // Study Session Engine
+    function prepareStudySession() {
+      const now = Date.now();
+      let targetCards = cards;
+
+      if (selectedFolderId) {
+        const descendantIds = getSubFolderIds(selectedFolderId);
+        targetCards = cards.filter(c => descendantIds.includes(c.folderId));
+        const cF = folders.find(f => f.id === selectedFolderId);
+        document.getElementById('active-study-target').innerText = cF ? cF.name : '選択フォルダ';
+      } else {
+        document.getElementById('active-study-target').innerText = 'すべてのフォルダ';
+      }
+
+      let newLimit = settings.dailyNewLimit !== undefined ? settings.dailyNewLimit : 20;
+      let reviewLimit = settings.dailyReviewLimit !== undefined ? settings.dailyReviewLimit : 100;
+
+      if (selectedFolderId) {
+        const f = folders.find(f => f.id === selectedFolderId);
+        if (f && f.options) {
+          if (f.options.dailyNewLimit !== undefined) newLimit = f.options.dailyNewLimit;
+          else if (f.options.dailyLimit !== undefined) newLimit = f.options.dailyLimit;
+
+          if (f.options.dailyReviewLimit !== undefined) reviewLimit = f.options.dailyReviewLimit;
+        }
+      }
+
+      // Filter cards that have review schedule due (including cloze cards where ANY blank is due)
+      const dueReviewCards = targetCards.filter(c => isCardDue(c, now) && isCardReviewOrInProgress(c));
+      const dueNewCards = targetCards.filter(c => isCardDue(c, now) && isCardNew(c));
+
+      const selectedReview = dueReviewCards.slice(0, reviewLimit);
+      const selectedNew = dueNewCards.slice(0, newLimit);
+
+      studyQueue = [...selectedReview, ...selectedNew];
+      currentCardIndex = 0;
+      isAnswerShown = false;
+      currentMaskStates = {};
+
+      updateStudyCounts(targetCards);
+      renderCurrentCard();
+    }
+
+    function updateStudyCounts(targetCards) {
+      const now = Date.now();
+      const newCount = targetCards.filter(c => isCardDue(c, now) && isCardNew(c)).length;
+      const learningCount = targetCards.filter(c => isCardDue(c, now) && c.status === 'learning' && !isCardNew(c)).length;
+      const dueCount = targetCards.filter(c => isCardDue(c, now) && c.status === 'review').length;
+
+      document.getElementById('tag-new').innerText = `新規: ${newCount}`;
+      document.getElementById('tag-learning').innerText = `学習中: ${learningCount}`;
+      document.getElementById('tag-due').innerText = `復習: ${dueCount}`;
+    }
+
+    function renderCurrentCard() {
+      const container = document.getElementById('study-container');
+      const bottomBar = document.getElementById('study-bottom-bar');
+      const bottomContent = document.getElementById('study-bottom-content');
+
+      if (studyQueue.length === 0 || currentCardIndex >= studyQueue.length) {
+        bottomBar.style.display = 'none';
+        container.innerHTML = `
+          <div class="flashcard" style="text-align: center; justify-content: center; align-items: center; min-height: 280px;">
+            <div style="font-size: 3rem; margin-bottom: 12px;">🎉</div>
+            <h2 style="margin-bottom: 8px;">学習完了！</h2>
+            <p style="color: var(--text-muted); margin-bottom: 20px;">現在学習予定のカードはありません。</p>
+            <button class="btn btn-primary" style="width: auto; padding: 10px 24px;" onclick="switchView('decks')">フォルダ一覧へ戻る</button>
+          </div>
+        `;
+        return;
+      }
+
+      bottomBar.style.display = 'block';
+
+      const card = studyQueue[currentCardIndex];
+      const folderObj = folders.find(f => f.id === card.folderId);
+      const activeOptions = (folderObj && folderObj.options) ? folderObj.options : settings;
+
+      const isClozeType = (card.type === 'cloze' || card.type === 'table' || isCardMultiLine(card));
+
+      // Reset mask states for current card if needed
+      if (isClozeType) {
+        ensureClozeSchedules(card);
+        const totalMasks = getCardMaskCount(card);
+        for (let i = 0; i < totalMasks; i++) {
+          if (!currentMaskStates[i]) {
+            if (!isMaskDue(card, i)) {
+              currentMaskStates[i] = 'not_due';
+            } else {
+              currentMaskStates[i] = 'unrevealed';
+            }
+          }
+        }
+      }
+
+      let bodyHTML = '';
+      if (isCardMultiLine(card)) {
+        bodyHTML = formatMultiLineCardHTML(card);
+      } else if (card.type === 'basic' || card.type === 'standard') {
+        bodyHTML = `<div class="card-text-content" style="font-size: 1.2rem; font-weight: 700; line-height: 1.6; word-break: break-word; overflow-wrap: anywhere;">${renderCardHTMLText(card.front)}</div>`;
+      } else if (card.type === 'cloze') {
+        bodyHTML = `<div class="card-text-content" style="word-break: break-word; overflow-wrap: anywhere; line-height: 1.7;">${formatMaskText(card.text || card.front, card, 0)}</div>`;
+      } else if (card.type === 'table') {
+        bodyHTML = formatTableMaskText(card);
+      }
+
+      container.innerHTML = `
+        <div class="flashcard" id="current-active-flashcard">
+          <div>
+            ${(isClozeType && !settings.hideClozeGuide) ? `
+              <div class="cloze-guide-bar">
+                <div class="cloze-guide-content">
+                  <span>👆 <strong>タップ</strong>: 正解として開く</span>
+                  <span>⏱️ <strong>長押し</strong>: 正解 ⇔ 誤答を切替</span>
+                </div>
+                <button type="button" class="cloze-guide-close" onclick="dismissClozeGuide(event)" title="今後この説明を表示しない" aria-label="説明を閉じる">✕</button>
+              </div>
+            ` : ''}
+
+            <div class="card-body" id="current-card-body">${bodyHTML}</div>
+
+            ${isClozeType ? `
+              <div id="cloze-summary-area"></div>
+              <div class="mask-toggle-bar">
+                <button type="button" class="btn-subtle" onclick="revealAllMasks(true)">すべて正解として開く</button>
+                <button type="button" class="btn-subtle" onclick="hideAllMasks()">すべて伏せる</button>
+              </div>
+            ` : ''}
+
+            ${(!isClozeType && isAnswerShown) ? `
+              <div class="answer-box">
+                <div class="answer-content">${renderCardHTMLText(card.back || '上記内容を確認してください。')}</div>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+      `;
+
+      // Auto-fit content dynamically for small screens (prevent scroll / overflow)
+      autoFitCardContent();
+
+      // Render Fixed Bottom Actions Bar
+      if (isClozeType) {
+        checkClozeAllRevealed();
+      } else {
+        const previews = calculateSRSPreviews(card, activeOptions);
+        if (!isAnswerShown) {
+          bottomContent.innerHTML = `
+            <button class="btn btn-primary" onclick="showAnswer()">解答を表示</button>
+          `;
+        } else {
+          bottomContent.innerHTML = `
+            <div class="btn-row">
+              <button class="btn srs-btn btn-again" onclick="handleRating('again')">
+                <span class="btn-label">もう一度</span>
+                <span class="time-preview">${previews.again.label}</span>
+              </button>
+              <button class="btn srs-btn btn-hard" onclick="handleRating('hard')">
+                <span class="btn-label">苦戦</span>
+                <span class="time-preview">${previews.hard.label}</span>
+              </button>
+              <button class="btn srs-btn btn-good" onclick="handleRating('good')">
+                <span class="btn-label">正解</span>
+                <span class="time-preview">${previews.good.label}</span>
+              </button>
+              <button class="btn srs-btn btn-easy" onclick="handleRating('easy')">
+                <span class="btn-label">完璧</span>
+                <span class="time-preview">${previews.easy.label}</span>
+              </button>
+            </div>
+          `;
+        }
+      }
+    }
+
+    // Auto-fit card content so it fits cleanly on narrow devices without overflowing
+    function autoFitCardContent() {
+      requestAnimationFrame(() => {
+        const cardBody = document.getElementById('current-card-body');
+        const flashcard = document.getElementById('current-active-flashcard');
+        if (!cardBody || !flashcard) return;
+
+        const table = cardBody.querySelector('.card-table');
+        if (table) {
+          const containerWidth = flashcard.clientWidth - 28; // account for padding
+          if (table.scrollWidth > containerWidth) {
+            const ratio = Math.max(0.68, Math.min(1.0, containerWidth / table.scrollWidth));
+            table.style.fontSize = `calc(${ratio} * 0.9rem)`;
+          }
+        }
+      });
+    }
+
+    // Mask Interaction Event Handlers (Tap = Reveal as Correct ONLY; Long Press = Toggle between Incorrect & Correct)
+    function handleMaskPointerDown(e, maskIdx) {
+      maskLongPressedTriggered = false;
+      if (maskLongPressTimer) clearTimeout(maskLongPressTimer);
+
+      maskLongPressTimer = setTimeout(() => {
+        maskLongPressedTriggered = true;
+        toggleMaskIncorrectState(maskIdx);
+      }, 400);
+    }
+
+    function handleMaskPointerUp(e, maskIdx) {
+      if (maskLongPressTimer) clearTimeout(maskLongPressTimer);
+      if (!maskLongPressedTriggered) {
+        handleMaskTap(maskIdx);
+      }
+    }
+
+    function handleMaskPointerCancel(e, maskIdx) {
+      if (maskLongPressTimer) clearTimeout(maskLongPressTimer);
+    }
+
+    function handleMaskContextMenu(e, maskIdx) {
+      e.preventDefault();
+      toggleMaskIncorrectState(maskIdx);
+    }
+
+    // Tap action: Only opens unrevealed masks as correct. Never closes already revealed masks or switches them.
+    function handleMaskTap(maskIdx) {
+      const current = currentMaskStates[maskIdx] || 'unrevealed';
+      if (current === 'unrevealed') {
+        currentMaskStates[maskIdx] = 'correct';
+        updateMaskElementDOM(maskIdx);
+        checkClozeAllRevealed();
+      }
+      // If already 'correct' or 'incorrect', tapping does nothing to avoid accidental toggles/closing
+    }
+
+    // Long press action: Toggle strictly between incorrect and correct (never goes back to unrevealed)
+    function toggleMaskIncorrectState(maskIdx) {
+      const current = currentMaskStates[maskIdx] || 'unrevealed';
+      if (current === 'unrevealed') {
+        currentMaskStates[maskIdx] = 'incorrect';
+      } else if (current === 'incorrect') {
+        currentMaskStates[maskIdx] = 'correct';
+      } else {
+        currentMaskStates[maskIdx] = 'incorrect';
+      }
+      updateMaskElementDOM(maskIdx);
+      checkClozeAllRevealed();
+    }
+
+    function setMaskState(maskIdx, state) {
+      currentMaskStates[maskIdx] = state;
+      updateMaskElementDOM(maskIdx);
+      checkClozeAllRevealed();
+    }
+
+    function updateMaskElementDOM(maskIdx) {
+      const el = document.querySelector(`.mask-item[data-mask-idx="${maskIdx}"]`);
+      if (!el) return;
+
+      const state = currentMaskStates[maskIdx] || 'unrevealed';
+      el.classList.remove('revealed', 'correct', 'incorrect');
+
+      const badgeEl = el.querySelector('.mask-badge');
+
+      if (state === 'correct') {
+        el.classList.add('revealed', 'correct');
+        if (badgeEl) badgeEl.innerText = '✓';
+      } else if (state === 'incorrect') {
+        el.classList.add('revealed', 'incorrect');
+        if (badgeEl) badgeEl.innerText = '✕';
+      } else {
+        if (badgeEl) badgeEl.innerText = '';
+      }
+    }
+
+    function revealAllMasks(asCorrect = true) {
+      const card = studyQueue[currentCardIndex];
+      if (!card) return;
+      const totalMasks = getCardMaskCount(card);
+      for (let i = 0; i < totalMasks; i++) {
+        if (currentMaskStates[i] !== 'not_due') {
+          currentMaskStates[i] = asCorrect ? 'correct' : 'incorrect';
+          updateMaskElementDOM(i);
+        }
+      }
+      checkClozeAllRevealed();
+    }
+
+    function hideAllMasks() {
+      const card = studyQueue[currentCardIndex];
+      if (!card) return;
+      const totalMasks = getCardMaskCount(card);
+      for (let i = 0; i < totalMasks; i++) {
+        if (currentMaskStates[i] !== 'not_due') {
+          currentMaskStates[i] = 'unrevealed';
+          updateMaskElementDOM(i);
+        }
+      }
+      checkClozeAllRevealed();
+    }
+
+    function dismissClozeGuide(e) {
+      if (e) {
+        if (typeof e.stopPropagation === 'function') e.stopPropagation();
+        if (typeof e.preventDefault === 'function') e.preventDefault();
+      }
+      settings.hideClozeGuide = true;
+      localStorage.setItem('memorica_hide_cloze_guide', 'true');
+      saveSettingsData();
+      const el = document.querySelector('.cloze-guide-bar');
+      if (el) el.remove();
+    }
+
+    // Check Cloze Completion and Render Single Confirmation Button
+    function checkClozeAllRevealed() {
+      const card = studyQueue[currentCardIndex];
+      if (!card || (card.type !== 'cloze' && card.type !== 'table' && !isCardMultiLine(card))) return;
+
+      const totalMasks = getCardMaskCount(card);
+      let dueMaskCount = 0;
+      let correctCount = 0;
+      let incorrectCount = 0;
+
+      for (let i = 0; i < totalMasks; i++) {
+        const st = currentMaskStates[i] || 'unrevealed';
+        if (st !== 'not_due') {
+          dueMaskCount++;
+          if (st === 'correct') correctCount++;
+          else if (st === 'incorrect') incorrectCount++;
+        }
+      }
+
+      // If all masks are not due (edge case), count all as revealed
+      const targetCount = dueMaskCount > 0 ? dueMaskCount : totalMasks;
+      const revealedCount = correctCount + incorrectCount;
+      const isAllRevealed = (dueMaskCount === 0 || revealedCount === targetCount);
+
+      const summaryArea = document.getElementById('cloze-summary-area');
+      const bottomContent = document.getElementById('study-bottom-content');
+      const itemUnitName = isCardMultiLine(card) ? '行' : '空欄';
+
+      if (isAllRevealed) {
+        const accuracy = targetCount > 0 ? Math.round((correctCount / targetCount) * 100) : 100;
+        const folderObj = folders.find(f => f.id === card.folderId);
+        const activeOptions = (folderObj && folderObj.options) ? folderObj.options : settings;
+
+        // Generate per-blank preview badges for due blanks
+        let blankBadgesHTML = '';
+        for (let i = 0; i < totalMasks; i++) {
+          const st = currentMaskStates[i];
+          if (st === 'not_due') {
+            const sch = (card.clozeSchedules && card.clozeSchedules[i]) ? card.clozeSchedules[i] : null;
+            const remainingMin = sch && sch.dueDate ? Math.max(0, (sch.dueDate - Date.now()) / (60 * 1000)) : 0;
+            const timeLabel = formatTimePreview(remainingMin);
+            blankBadgesHTML += `
+              <span class="cloze-preview-badge" style="background:#f1f5f9; color:#64748b; border:1px solid #cbd5e1;">
+                ${itemUnitName}${i + 1}: 復習期日外 (${timeLabel})
+              </span>
+            `;
+          } else {
+            const isCorrect = (st === 'correct');
+            const previewMin = calculateIndividualBlankMinutes(card, i, isCorrect, activeOptions);
+            const timeLabel = formatTimePreview(previewMin);
+            blankBadgesHTML += `
+              <span class="cloze-preview-badge ${isCorrect ? 'badge-correct' : 'badge-incorrect'}">
+                ${itemUnitName}${i + 1}: ${isCorrect ? '正解 ✓' : '誤答 ✕'} (${timeLabel})
+              </span>
+            `;
+          }
+        }
+
+        if (summaryArea) {
+          summaryArea.innerHTML = `
+            <div class="cloze-summary-card">
+              <div class="cloze-summary-header">
+                <span>🎯 ${itemUnitName}正答率: <strong>${accuracy}%</strong> (${correctCount}/${targetCount} 正解)</span>
+                <span style="font-size: 0.78rem; opacity: 0.85;">各${itemUnitName}の復習間隔を個別に最適化</span>
+              </div>
+              <div class="cloze-preview-list">
+                ${blankBadgesHTML}
+              </div>
+            </div>
+          `;
+        }
+
+        // Display SINGLE confirmation button
+        if (bottomContent) {
+          bottomContent.innerHTML = `
+            <button class="btn btn-primary" onclick="confirmClozeNext()" style="padding: 12px 16px;">
+              <span style="font-size: 1.05rem; font-weight: 700;">✓ 復習日時を確定して次へ</span>
+              <span style="font-size: 0.76rem; opacity: 0.9; margin-top: 2px;">正答率: ${accuracy}%（${correctCount}/${targetCount} 正解）</span>
+            </button>
+          `;
+        }
+      } else {
+        if (summaryArea) summaryArea.innerHTML = '';
+        if (bottomContent) {
+          const remaining = targetCount - revealedCount;
+          bottomContent.innerHTML = `
+            <button class="btn btn-secondary" onclick="revealAllMasks(true)">
+              <span style="font-weight: 700;">残り ${remaining} 箇所の${itemUnitName}をすべて開く</span>
+              <span style="font-size: 0.72rem; opacity: 0.85;">（タップまたは長押しで個別回答も可能）</span>
+            </button>
+          `;
+        }
+      }
+    }
+
+    function calculateIndividualBlankMinutes(card, maskIdx, isCorrect, activeOptions) {
+      const steps = activeOptions.learningSteps || [1, 10];
+      const gradInt = activeOptions.graduatingInterval || 1;
+      const sch = (card.clozeSchedules && card.clozeSchedules[maskIdx]) ? card.clozeSchedules[maskIdx] : {
+        step: 0, interval: 0, ease: 2.5, status: 'learning', repetition: 0
+      };
+
+      if (!isCorrect) {
+        return steps[0] || 1;
+      } else {
+        if (sch.status === 'learning') {
+          if (sch.step + 1 < steps.length) {
+            return steps[sch.step + 1];
+          } else {
+            return gradInt * 1440;
+          }
+        } else {
+          return Math.max(1, Math.round(sch.interval * sch.ease)) * 1440;
+        }
+      }
+    }
+
+    // Confirm Cloze Answer & Apply Independent Schedule per Blank
+    function confirmClozeNext() {
+      const card = studyQueue[currentCardIndex];
+      if (!card) return;
+
+      const folderObj = folders.find(f => f.id === card.folderId);
+      const activeOptions = (folderObj && folderObj.options) ? folderObj.options : settings;
+
+      const steps = activeOptions.learningSteps || [1, 10];
+      const gradInt = activeOptions.graduatingInterval || 1;
+      const totalMasks = getCardMaskCount(card);
+
+      ensureClozeSchedules(card);
+
+      for (let i = 0; i < totalMasks; i++) {
+        // If this mask is not due yet, preserve its existing future schedule
+        if (currentMaskStates[i] === 'not_due') {
+          continue;
+        }
+
+        const isCorrect = (currentMaskStates[i] === 'correct');
+        const sch = card.clozeSchedules[i];
+
+        if (!sch.ease) sch.ease = 2.5;
+        if (sch.step === undefined) sch.step = 0;
+        if (sch.interval === undefined) sch.interval = 0;
+        if (sch.repetition === undefined) sch.repetition = 0;
+
+        if (isCorrect) {
+          sch.repetition += 1;
+          if (sch.status === 'learning') {
+            if (sch.step + 1 < steps.length) {
+              sch.step += 1;
+              sch.dueDate = Date.now() + steps[sch.step] * 60 * 1000;
+            } else {
+              sch.status = 'review';
+              sch.interval = gradInt;
+              sch.dueDate = Date.now() + gradInt * 24 * 60 * 60 * 1000;
+            }
+          } else {
+            sch.interval = Math.max(1, Math.round(sch.interval * sch.ease));
+            sch.dueDate = Date.now() + sch.interval * 24 * 60 * 60 * 1000;
+          }
+        } else {
+          // Incorrect: Reset learning step, decrease ease
+          sch.ease = Math.max(1.3, sch.ease - 0.2);
+          sch.step = 0;
+          sch.status = 'learning';
+          sch.dueDate = Date.now() + (steps[0] || 1) * 60 * 1000;
+        }
+      }
+
+      syncCardFromClozeSchedules(card);
+      saveCardsData();
+
+      // Check if any other cards became due and need to interrupt immediately
+      injectDueCardsIntoQueue();
+
+      currentCardIndex++;
+      currentMaskStates = {};
+      isAnswerShown = false;
+
+      let targetCards = cards;
+      if (selectedFolderId) {
+        const descendantIds = getSubFolderIds(selectedFolderId);
+        targetCards = cards.filter(c => descendantIds.includes(c.folderId));
+      }
+      updateStudyCounts(targetCards);
+      renderCurrentCard();
+    }
+
+    function showAnswer() {
+      isAnswerShown = true;
+      renderCurrentCard();
+    }
+
+    function stripBrackets(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/\{\{(.*?)\}\}/g, '$1')
+        .replace(/\{\{/g, '')
+        .replace(/\}\}/g, '');
+    }
+
+    function formatMaskText(text, card = null, startIndex = 0) {
+      if (!text) return '';
+      let str = escapeHTML(text);
+      let maskIdx = startIndex;
+
+      const replacer = (m, p1) => {
+        const idx = maskIdx++;
+        const state = currentMaskStates[idx] || 'unrevealed';
+        const isDue = (card ? isMaskDue(card, idx) : true);
+        
+        // If blank is not yet due, show it revealed immediately from start
+        if (!isDue) {
+          return `<span class="mask-item not-due-open">${p1}</span>`;
+        }
+
+        let stateClass = '';
+        let badgeText = '';
+
+        if (state === 'correct') {
+          stateClass = 'revealed correct';
+          badgeText = '✓';
+        } else if (state === 'incorrect') {
+          stateClass = 'revealed incorrect';
+          badgeText = '✕';
+        }
+
+        return `<span class="mask-item ${stateClass}" data-mask-idx="${idx}" onpointerdown="handleMaskPointerDown(event, ${idx})" onpointerup="handleMaskPointerUp(event, ${idx})" onpointercancel="handleMaskPointerCancel(event, ${idx})" onpointerleave="handleMaskPointerCancel(event, ${idx})" oncontextmenu="handleMaskContextMenu(event, ${idx})">${p1}<span class="mask-badge">${badgeText}</span></span>`;
+      };
+
+      str = str.replace(/\{\{(.*?)\}\}/g, replacer);
+      str = str.replace(/\{\{/g, '').replace(/\}\}/g, '');
+      str = str.replace(/&lt;br\s*\/?&gt;/gi, '<br>');
+      str = str.replace(/\n/g, '<br>');
+      return str;
+    }
+
+    function formatTableMaskText(card) {
+      if (card.headers && Array.isArray(card.headers) && card.rows && Array.isArray(card.rows)) {
+        let maxCols = card.headers.length || 1;
+        card.rows.forEach(r => {
+          if (Array.isArray(r) && r.length > maxCols) maxCols = r.length;
+        });
+
+        // Calculate dynamic font size and cell styles based on column count
+        let fontSize = '0.92rem';
+        let cellPad = '6px 5px';
+        if (maxCols >= 5) {
+          fontSize = '0.7rem';
+          cellPad = '3px 2px';
+        } else if (maxCols === 4) {
+          fontSize = '0.78rem';
+          cellPad = '4px 3px';
+        } else if (maxCols === 3) {
+          fontSize = '0.86rem';
+          cellPad = '5px 4px';
+        }
+
+        let html = `<div class="table-container"><table class="card-table" style="font-size: ${fontSize}; table-layout: fixed; width: 100%;"><thead><tr>`;
+        card.headers.forEach(h => {
+          html += `<th style="padding: ${cellPad}; word-break: break-word; overflow-wrap: anywhere;">${escapeHTML(stripBrackets(h))}</th>`;
+        });
+        for (let i = card.headers.length; i < maxCols; i++) {
+          html += `<th style="padding: ${cellPad}; word-break: break-word; overflow-wrap: anywhere;">項目 ${i + 1}</th>`;
+        }
+        html += '</tr></thead><tbody>';
+
+        let globalMaskIdx = 0;
+        card.rows.forEach(r => {
+          html += '<tr>';
+          if (Array.isArray(r)) {
+            for (let i = 0; i < maxCols; i++) {
+              const cellVal = r[i] !== undefined ? String(r[i]) : '';
+              const matches = cellVal.match(/\{\{(.*?)\}\}/g);
+              const cellHTML = formatMaskText(cellVal, card, globalMaskIdx);
+              if (matches) globalMaskIdx += matches.length;
+              html += `<td style="padding: ${cellPad}; word-break: break-word; overflow-wrap: anywhere;">${cellHTML}</td>`;
+            }
+          } else {
+            const cellVal = String(r || '');
+            const matches = cellVal.match(/\{\{(.*?)\}\}/g);
+            const cellHTML = formatMaskText(cellVal, card, globalMaskIdx);
+            if (matches) globalMaskIdx += matches.length;
+            html += `<td colspan="${maxCols}" style="padding: ${cellPad}; word-break: break-word; overflow-wrap: anywhere;">${cellHTML}</td>`;
+          }
+          html += '</tr>';
+        });
+        html += '</tbody></table></div>';
+        return html;
+      }
+      return formatMaskText(card.front || card.text || '', card, 0);
+    }
+
+    function calculateSRSPreviews(card, opt) {
+      const steps = opt.learningSteps && opt.learningSteps.length ? opt.learningSteps : [1, 10];
+      const gradInt = opt.graduatingInterval || 1;
+      const easyInt = opt.easyInterval || 4;
+
+      let ease = card.ease || 2.5;
+      let interval = card.interval || 0;
+      let step = card.step || 0;
+      let status = card.status || 'learning';
+
+      const againMin = steps[0] || 1;
+      let hardMin = status === 'learning' ? (steps[step] ? steps[step] * 1.5 : 5) : Math.max(1, interval * 1.2) * 1440;
+      let goodMin = status === 'learning' ? ((step + 1 < steps.length) ? steps[step + 1] : gradInt * 1440) : Math.max(1, interval * ease) * 1440;
+      let easyMin = status === 'learning' ? easyInt * 1440 : Math.max(1, interval * ease * 1.3) * 1440;
+
+      return {
+        again: { minutes: againMin, label: formatTimePreview(againMin) },
+        hard: { minutes: hardMin, label: formatTimePreview(hardMin) },
+        good: { minutes: goodMin, label: formatTimePreview(goodMin) },
+        easy: { minutes: easyMin, label: formatTimePreview(easyMin) }
+      };
+    }
+
+    function formatTimePreview(minutes) {
+      if (minutes < 1) {
+        const sec = Math.max(1, Math.round(minutes * 60));
+        return `${sec}秒後`;
+      }
+      if (minutes < 60) return `${Math.round(minutes)}分後`;
+      const hours = minutes / 60;
+      if (hours < 24) return `${Math.round(hours)}時間後`;
+      const days = hours / 24;
+      if (days >= 7 && days % 7 === 0) return `${Math.round(days / 7)}週間後`;
+      return `${Math.round(days)}日後`;
+    }
+
+    function handleRating(rating) {
+      const card = studyQueue[currentCardIndex];
+      const folderObj = folders.find(f => f.id === card.folderId);
+      const activeOptions = (folderObj && folderObj.options) ? folderObj.options : settings;
+
+      const steps = activeOptions.learningSteps || [1, 10];
+      const gradInt = activeOptions.graduatingInterval || 1;
+      const easyInt = activeOptions.easyInterval || 4;
+
+      if (!card.ease) card.ease = 2.5;
+      if (card.step === undefined) card.step = 0;
+
+      if (rating === 'again') {
+        card.ease = Math.max(1.3, card.ease - 0.2);
+        card.step = 0;
+        card.status = 'learning';
+        card.dueDate = Date.now() + (steps[0] || 1) * 60 * 1000;
+      } else if (rating === 'hard') {
+        card.ease = Math.max(1.3, card.ease - 0.15);
+        if (card.status === 'learning') {
+          card.dueDate = Date.now() + 5 * 60 * 1000;
+        } else {
+          card.interval = Math.max(1, Math.round(card.interval * 1.2));
+          card.dueDate = Date.now() + card.interval * 24 * 60 * 60 * 1000;
+        }
+      } else if (rating === 'good') {
+        if (card.status === 'learning') {
+          if (card.step + 1 < steps.length) {
+            card.step += 1;
+            card.dueDate = Date.now() + steps[card.step] * 60 * 1000;
+          } else {
+            card.status = 'review';
+            card.interval = gradInt;
+            card.dueDate = Date.now() + gradInt * 24 * 60 * 60 * 1000;
+          }
+        } else {
+          card.interval = Math.max(1, Math.round(card.interval * card.ease));
+          card.dueDate = Date.now() + card.interval * 24 * 60 * 60 * 1000;
+        }
+      } else if (rating === 'easy') {
+        card.ease += 0.15;
+        if (card.status === 'learning') {
+          card.status = 'review';
+          card.interval = easyInt;
+          card.dueDate = Date.now() + easyInt * 24 * 60 * 60 * 1000;
+        } else {
+          card.interval = Math.max(1, Math.round(card.interval * card.ease * 1.3));
+          card.dueDate = Date.now() + card.interval * 24 * 60 * 60 * 1000;
+        }
+      }
+
+      saveCardsData();
+
+      // Check if any other cards became due and need to interrupt immediately
+      injectDueCardsIntoQueue();
+
+      currentCardIndex++;
+      isAnswerShown = false;
+
+      let targetCards = cards;
+      if (selectedFolderId) {
+        const descendantIds = getSubFolderIds(selectedFolderId);
+        targetCards = cards.filter(c => descendantIds.includes(c.folderId));
+      }
+      updateStudyCounts(targetCards);
+      renderCurrentCard();
+    }
+
+    // Cards Tab Management View
+    function renderCardsList() {
+      const container = document.getElementById('card-list-container');
+      const search = (document.getElementById('search-card')?.value || '').toLowerCase().trim();
+      const folderFilter = document.getElementById('filter-folder').value;
+      const typeFilter = document.getElementById('filter-type').value;
+
+      populateFolderDropdowns();
+
+      let filtered = cards.filter(c => {
+        let matchSearch = (c.front || '').toLowerCase().includes(search) ||
+                          (c.text || '').toLowerCase().includes(search) ||
+                          (c.back || '').toLowerCase().includes(search) ||
+                          (c.headers ? c.headers.join(' ').toLowerCase().includes(search) : false) ||
+                          (c.rows ? c.rows.map(r => r.join(' ')).join(' ').toLowerCase().includes(search) : false);
+        
+        let matchFolder = true;
+        if (folderFilter !== 'all') {
+          const validSubIds = getSubFolderIds(folderFilter);
+          matchFolder = validSubIds.includes(c.folderId);
+        }
+
+        let matchType = true;
+        if (typeFilter !== 'all') {
+          matchType = c.type === typeFilter || (typeFilter === 'basic' && c.type === 'standard');
+        }
+
+        return matchSearch && matchFolder && matchType;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<div style="text-align:center; padding: 24px; color: var(--text-muted);">カードが見つかりません。</div>';
+        return;
+      }
+
+      const typeNames = { basic: '通常', standard: '通常', cloze: '穴埋め', table: '表' };
+
+      container.innerHTML = filtered.map(c => {
+        const folderObj = folders.find(f => f.id === c.folderId);
+        const folderName = folderObj ? folderObj.name : '未分類';
+        const displayTitle = getCardFrontText(c);
+        const dueDateStr = new Date(c.dueDate).toLocaleDateString('ja-JP');
+
+        const typeBadgeText = isCardMultiLine(c) ? '複数行' : (typeNames[c.type] || '通常');
+
+        return `
+          <div class="card-item">
+            <div class="card-item-info" onclick="openCardModal('${c.id}')" style="cursor:pointer;">
+              <div class="card-item-title">${escapeHTML(displayTitle)}</div>
+              <div class="card-item-sub">
+                <span style="background:#e0e7ff; color:#3730a3; padding:2px 6px; border-radius:4px;">📁 ${escapeHTML(folderName)}</span>
+                <span style="background:#e2e8f0; padding:2px 6px; border-radius:4px;">${typeBadgeText}</span>
+                <span>次回: ${dueDateStr}</span>
+              </div>
+            </div>
+            <div class="card-item-actions">
+              <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); openDateModal('${c.id}')">📅 期日</button>
+              <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); openCardModal('${c.id}')">編集</button>
+              <button class="btn btn-secondary btn-sm" style="color:#dc2626;" onclick="event.stopPropagation(); deleteCard('${c.id}')">🗑️</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function populateFolderDropdowns() {
+      const folderSelects = [
+        document.getElementById('card-folder-select'),
+        document.getElementById('folder-parent-select'),
+        document.getElementById('filter-folder'),
+        document.getElementById('json-folder-select')
+      ];
+
+      const currentFilterVal = document.getElementById('filter-folder') ? document.getElementById('filter-folder').value : 'all';
+      const currentJsonVal = document.getElementById('json-folder-select') ? document.getElementById('json-folder-select').value : null;
+
+      folderSelects.forEach((select, idx) => {
+        if (!select) return;
+        let html = '';
+        if (idx === 1) html = '<option value="">(ルート / 親なし)</option>';
+        if (idx === 2) html = '<option value="all">すべてのフォルダ (サブ含む)</option>';
+
+        folders.forEach(f => {
+          html += `<option value="${f.id}">📁 ${escapeHTML(f.name)}</option>`;
+        });
+        select.innerHTML = html;
+      });
+
+      if (currentFilterVal && document.getElementById('filter-folder')) {
+        document.getElementById('filter-folder').value = currentFilterVal;
+      }
+      if (currentJsonVal && document.getElementById('json-folder-select')) {
+        document.getElementById('json-folder-select').value = currentJsonVal;
+      }
+    }
+
+    // Card Modal Handlers
+    function openCardModal(cardId = null, presetFolderId = null) {
+      populateFolderDropdowns();
+      const modal = document.getElementById('card-modal');
+      
+      if (cardId) {
+        const card = cards.find(c => c.id === cardId);
+        if (!card) return;
+        document.getElementById('card-modal-title').innerText = 'カードを編集';
+        document.getElementById('edit-card-id').value = card.id;
+        document.getElementById('card-folder-select').value = card.folderId;
+        document.getElementById('card-type-select').value = card.type || 'basic';
+
+        if (card.type === 'cloze') {
+          document.getElementById('card-cloze-input').value = card.text || card.front || '';
+          document.getElementById('card-cloze-back').value = card.back || '';
+        } else if (card.type === 'table') {
+          let csv = '';
+          if (card.headers && card.rows) {
+            csv = card.headers.join(', ') + '\n' + card.rows.map(r => r.join(', ')).join('\n');
+          }
+          document.getElementById('card-table-input').value = csv;
+          document.getElementById('card-table-back').value = card.back || '';
+        } else {
+          document.getElementById('card-front-input').value = card.front || '';
+          document.getElementById('card-back-input').value = card.back || '';
+        }
+      } else {
+        document.getElementById('card-modal-title').innerText = '新しいカードを作成';
+        document.getElementById('edit-card-id').value = '';
+        document.getElementById('card-front-input').value = '';
+        document.getElementById('card-back-input').value = '';
+        document.getElementById('card-cloze-input').value = '';
+        document.getElementById('card-cloze-back').value = '';
+        document.getElementById('card-table-input').value = '';
+        document.getElementById('card-table-back').value = '';
+
+        if (presetFolderId) {
+          document.getElementById('card-folder-select').value = presetFolderId;
+        } else if (folders.length > 0) {
+          document.getElementById('card-folder-select').value = folders[0].id;
+        }
+      }
+
+      toggleModalFields();
+      modal.classList.add('active');
+    }
+
+    function toggleModalFields() {
+      const type = document.getElementById('card-type-select').value;
+      document.getElementById('form-standard').style.display = (type === 'basic' || type === 'standard') ? 'block' : 'none';
+      document.getElementById('form-cloze').style.display = (type === 'cloze') ? 'block' : 'none';
+      document.getElementById('form-table').style.display = (type === 'table') ? 'block' : 'none';
+    }
+
+    function saveCardFromModal() {
+      const cardId = document.getElementById('edit-card-id').value;
+      const folderId = document.getElementById('card-folder-select').value;
+      const type = document.getElementById('card-type-select').value;
+
+      if (!folderId) {
+        alert('フォルダを選択してください。');
+        return;
+      }
+
+      let newCard = {
+        id: cardId || 'c_' + Date.now() + '_' + Math.random().toString(36).substring(2,6),
+        folderId,
+        type,
+        repetition: 0, interval: 0, ease: 2.5, step: 0, status: 'learning', dueDate: Date.now()
+      };
+
+      if (cardId) {
+        const existing = cards.find(c => c.id === cardId);
+        if (existing) {
+          newCard = { ...existing, folderId, type };
+        }
+      }
+
+      if (type === 'basic' || type === 'standard') {
+        newCard.front = document.getElementById('card-front-input').value.trim();
+        newCard.back = document.getElementById('card-back-input').value.trim();
+        if (isCardMultiLine(newCard)) {
+          ensureClozeSchedules(newCard);
+          syncCardFromClozeSchedules(newCard);
+        }
+      } else if (type === 'cloze') {
+        newCard.text = document.getElementById('card-cloze-input').value.trim();
+        newCard.front = newCard.text;
+        newCard.back = document.getElementById('card-cloze-back').value.trim();
+        ensureClozeSchedules(newCard);
+        syncCardFromClozeSchedules(newCard);
+      } else if (type === 'table') {
+        const rawTable = document.getElementById('card-table-input').value.trim();
+        const lines = rawTable.split('\n').filter(l => l.trim().length > 0);
+        if (lines.length > 0) {
+          newCard.headers = lines[0].split(',').map(s => s.trim());
+          newCard.rows = lines.slice(1).map(l => l.split(',').map(s => s.trim()));
+        }
+        newCard.back = document.getElementById('card-table-back').value.trim();
+        ensureClozeSchedules(newCard);
+        syncCardFromClozeSchedules(newCard);
+      }
+
+      if (cardId) {
+        const idx = cards.findIndex(c => c.id === cardId);
+        if (idx !== -1) cards[idx] = newCard;
+      } else {
+        cards.push(newCard);
+      }
+
+      saveCardsData();
+      closeModal('card-modal');
+      renderCardsList();
+      renderFoldersTree();
+      renderStatsView();
+    }
+
+    // Direct JSON / TSV Bulk Add / Import (from Deck Action Menu or Selection)
+    function openJsonPasteModal(presetFolderId = null) {
+      populateFolderDropdowns();
+      const select = document.getElementById('json-folder-select');
+      if (select) {
+        if (presetFolderId) {
+          select.value = presetFolderId;
+        } else if (folders.length > 0) {
+          select.value = folders[0].id;
+        }
+      }
+      document.getElementById('json-paste-input').value = '';
+      const fileInput = document.getElementById('json-file-input');
+      if (fileInput) fileInput.value = '';
+      document.getElementById('json-paste-modal').classList.add('active');
+    }
+
+    function handleJsonFileRead(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        document.getElementById('json-paste-input').value = evt.target.result || '';
+      };
+      reader.onerror = () => {
+        alert('ファイルの読み込みに失敗しました。');
+      };
+      reader.readAsText(file);
+    }
+
+    // Robust TSV Record Parser supporting quoted fields with line breaks
+    function parseTSVRecords(text) {
+      const records = [];
+      let currentFields = [''];
+      let inQuotes = false;
+      let i = 0;
+
+      while (i < text.length) {
+        const char = text[i];
+        const nextChar = text[i + 1];
+
+        if (char === '"') {
+          if (inQuotes && nextChar === '"') {
+            currentFields[currentFields.length - 1] += '"';
+            i += 2;
+            continue;
+          } else {
+            inQuotes = !inQuotes;
+            i++;
+            continue;
+          }
+        }
+
+        if (char === '\t' && !inQuotes) {
+          currentFields.push('');
+          i++;
+          continue;
+        }
+
+        if ((char === '\r' || char === '\n') && !inQuotes) {
+          if (char === '\r' && nextChar === '\n') i++;
+          if (currentFields.some(f => f.trim().length > 0)) {
+            records.push(currentFields);
+          }
+          currentFields = [''];
+          i++;
+          continue;
+        }
+
+        currentFields[currentFields.length - 1] += char;
+        i++;
+      }
+
+      if (currentFields.some(f => f.trim().length > 0)) {
+        records.push(currentFields);
+      }
+
+      return records;
+    }
+
+    async function importPastedJson(e) {
+      if (e && typeof e.preventDefault === 'function') {
+        e.preventDefault();
+      }
+
+      try {
+        let rawText = document.getElementById('json-paste-input').value.trim();
+        const fileInput = document.getElementById('json-file-input');
+
+        // If textarea is empty but a file is selected, read the file first
+        if (!rawText && fileInput && fileInput.files && fileInput.files.length > 0) {
+          const file = fileInput.files[0];
+          rawText = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (evt) => resolve(evt.target ? evt.target.result || '' : '');
+            reader.onerror = () => reject(new Error('ファイルの読み込みに失敗しました。'));
+            reader.readAsText(file);
+          });
+          rawText = (rawText || '').trim();
+        }
+
+        if (!rawText) {
+          alert('テキストを入力するか、ファイルを選択してください。');
+          return;
+        }
+
+        // Clean markdown code fences if present (e.g., ```json ... ``` or ```tsv ... ```)
+        rawText = rawText.replace(/^```(?:json|tsv|text)?\s*/i, '').replace(/\s*```$/i, '').trim();
+
+        const targetFolderId = document.getElementById('json-folder-select') ? document.getElementById('json-folder-select').value : null;
+
+        let items = [];
+
+        // 1. Try parsing as JSON first
+        try {
+          const parsed = JSON.parse(rawText);
+          if (Array.isArray(parsed)) {
+            items = parsed;
+          } else if (parsed && typeof parsed === 'object') {
+            if (Array.isArray(parsed.cards)) items = parsed.cards;
+            else if (Array.isArray(parsed.items)) items = parsed.items;
+            else if (Array.isArray(parsed.data)) items = parsed.data;
+            else items = [parsed];
+          }
+        } catch (jsonErr) {
+          // 2. If not valid JSON, parse as TSV (Tab-separated values: question\tanswer)
+          const records = parseTSVRecords(rawText);
+          if (records.length > 0) {
+            records.forEach(parts => {
+              if (parts.length >= 2) {
+                const front = parts[0].trim();
+                const back = parts.slice(1).join('\t').trim();
+                if (front || back) {
+                  items.push({
+                    type: 'basic',
+                    front: front,
+                    back: back
+                  });
+                }
+              } else if (parts.length === 1 && parts[0].trim().length > 0) {
+                items.push({
+                  type: 'basic',
+                  front: parts[0].trim(),
+                  back: ''
+                });
+              }
+            });
+          }
+        }
+
+        if (!items || items.length === 0) {
+          throw new Error('有効なJSONデータまたはタブ区切り（問題[TAB]解答）データが見つかりませんでした。');
+        }
+
+        let importedCount = 0;
+
+        items.forEach((item, index) => {
+          if (!item || typeof item !== 'object') return;
+
+          let destFolderId = targetFolderId;
+
+          // Folder auto-creation or matching if present in JSON
+          let rawFolder = item.folder || item.folderName || item.deck || item.deckName;
+          if (rawFolder && typeof rawFolder === 'string' && rawFolder.trim() !== '') {
+            let folderName = rawFolder.trim();
+            let folderObj = folders.find(f => f.name.toLowerCase() === folderName.toLowerCase());
+            if (!folderObj) {
+              folderObj = {
+                id: 'f_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
+                name: folderName,
+                parentId: null,
+                createdAt: Date.now()
+              };
+              folders.push(folderObj);
+            }
+            destFolderId = folderObj.id;
+          }
+
+          if (!destFolderId) {
+            if (folders.length > 0) {
+              destFolderId = folders[0].id;
+            } else {
+              const defaultF = {
+                id: 'f_' + Date.now(),
+                name: 'インポート',
+                parentId: null,
+                createdAt: Date.now()
+              };
+              folders.push(defaultF);
+              destFolderId = defaultF.id;
+            }
+          }
+
+          // Card type resolution
+          let cardType = item.type || item.cardType;
+          if (!cardType) {
+            if (Array.isArray(item.headers) && Array.isArray(item.rows)) {
+              cardType = 'table';
+            } else if (item.text || (typeof item.front === 'string' && item.front.includes('{{'))) {
+              cardType = 'cloze';
+            } else {
+              cardType = 'basic';
+            }
+          }
+          if (cardType === 'standard') cardType = 'basic';
+          if (!['basic', 'cloze', 'table'].includes(cardType)) cardType = 'basic';
+
+          // Field extraction
+          let frontVal = item.front || item.question || '';
+          let backVal = item.back || item.answer || item.explanation || '';
+          let textVal = item.text || '';
+          let headersVal = Array.isArray(item.headers) ? item.headers : null;
+          let rowsVal = Array.isArray(item.rows) ? item.rows : null;
+
+          if (cardType === 'basic') {
+            if (!frontVal && textVal) frontVal = textVal;
+          } else if (cardType === 'cloze') {
+            if (!textVal && frontVal) textVal = frontVal;
+          }
+
+          const newCard = {
+            id: 'c_' + Date.now() + '_' + index + '_' + Math.random().toString(36).substring(2, 6),
+            folderId: destFolderId,
+            type: cardType,
+            front: String(frontVal),
+            back: String(backVal),
+            text: String(textVal),
+            headers: headersVal,
+            rows: rowsVal,
+            repetition: 0,
+            interval: 0,
+            ease: 2.5,
+            step: 0,
+            status: 'learning',
+            dueDate: Date.now()
+          };
+
+          if (newCard.type === 'cloze' || newCard.type === 'table' || isCardMultiLine(newCard)) {
+            ensureClozeSchedules(newCard);
+            syncCardFromClozeSchedules(newCard);
+          }
+
+          cards.push(newCard);
+          importedCount++;
+        });
+
+        if (importedCount === 0) {
+          throw new Error('インポート対象となるカード情報が空でした。');
+        }
+
+        saveFoldersData();
+        saveCardsData();
+        closeModal('json-paste-modal');
+        populateFolderDropdowns();
+        renderFoldersTree();
+        renderCardsList();
+        renderStatsView();
+
+        alert(importedCount + "件のカードを正常にインポートしました！");
+
+      } catch (err) {
+        alert("インポート失敗: " + err.message);
+      }
+    }
+
+    // Folder Creation / Edit Modal
+    function openFolderModal(folderId = null, presetParentId = null) {
+      populateFolderDropdowns();
+      const modal = document.getElementById('folder-modal');
+
+      if (folderId) {
+        const folder = folders.find(f => f.id === folderId);
+        if (!folder) return;
+        document.getElementById('folder-modal-title').innerText = 'フォルダを編集';
+        document.getElementById('edit-folder-id').value = folder.id;
+        document.getElementById('folder-name-input').value = folder.name;
+        document.getElementById('folder-parent-select').value = folder.parentId || '';
+      } else {
+        document.getElementById('folder-modal-title').innerText = '新しいフォルダを作成';
+        document.getElementById('edit-folder-id').value = '';
+        document.getElementById('folder-name-input').value = '';
+        document.getElementById('folder-parent-select').value = presetParentId || '';
+      }
+
+      modal.classList.add('active');
+    }
+
+    function saveFolderFromModal() {
+      const id = document.getElementById('edit-folder-id').value;
+      const name = document.getElementById('folder-name-input').value.trim();
+      const parentId = document.getElementById('folder-parent-select').value || null;
+
+      if (!name) {
+        alert('フォルダ名を入力してください。');
+        return;
+      }
+
+      if (id) {
+        const folder = folders.find(f => f.id === id);
+        if (folder) {
+          folder.name = name;
+          folder.parentId = parentId;
+        }
+      } else {
+        folders.push({
+          id: 'f_' + Date.now() + '_' + Math.random().toString(36).substring(2,6),
+          name,
+          parentId,
+          createdAt: Date.now()
+        });
+      }
+
+      saveFoldersData();
+      closeModal('folder-modal');
+      renderFoldersTree();
+      renderCardsList();
+    }
+
+    // Manual Due Date Modal
+    function openDateModal(cardId) {
+      const card = cards.find(c => c.id === cardId);
+      if (!card) return;
+      document.getElementById('date-card-id').value = cardId;
+      
+      const d = new Date(card.dueDate);
+      const isoStr = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+      document.getElementById('manual-due-date').value = isoStr;
+
+      document.getElementById('date-modal').classList.add('active');
+    }
+
+    function saveManualDueDate() {
+      const cardId = document.getElementById('date-card-id').value;
+      const val = document.getElementById('manual-due-date').value;
+      if (!val) return;
+
+      const card = cards.find(c => c.id === cardId);
+      if (card) {
+        card.dueDate = new Date(val).getTime();
+        if (card.clozeSchedules && typeof card.clozeSchedules === 'object') {
+          Object.values(card.clozeSchedules).forEach(sch => {
+            sch.dueDate = card.dueDate;
+          });
+        }
+        saveCardsData();
+        renderCardsList();
+        renderFoldersTree();
+      }
+      closeModal('date-modal');
+    }
+
+    // Settings View Handlers
+    function loadSettingsToUI() {
+      document.getElementById('opt-steps').value = formatLearningStepsArray(settings.learningSteps || [1, 10]);
+      document.getElementById('opt-grad').value = settings.graduatingInterval || 1;
+      document.getElementById('opt-easy').value = settings.easyInterval || 4;
+      document.getElementById('opt-new-limit').value = settings.dailyNewLimit !== undefined ? settings.dailyNewLimit : 20;
+      document.getElementById('opt-review-limit').value = settings.dailyReviewLimit !== undefined ? settings.dailyReviewLimit : 100;
+      const hideGuideCheckbox = document.getElementById('opt-hide-cloze-guide');
+      if (hideGuideCheckbox) {
+        hideGuideCheckbox.checked = !!settings.hideClozeGuide;
+      }
+      renderThemeCards();
+    }
+
+    function saveSettings() {
+      const stepsStr = document.getElementById('opt-steps').value.trim();
+      const stepsArr = parseLearningStepsString(stepsStr);
+      const hideGuideCheckbox = document.getElementById('opt-hide-cloze-guide');
+      const hideClozeGuide = hideGuideCheckbox ? hideGuideCheckbox.checked : !!settings.hideClozeGuide;
+
+      settings = {
+        learningSteps: stepsArr.length ? stepsArr : [1, 10],
+        graduatingInterval: Number(document.getElementById('opt-grad').value) || 1,
+        easyInterval: Number(document.getElementById('opt-easy').value) || 4,
+        dailyNewLimit: Number(document.getElementById('opt-new-limit').value) || 20,
+        dailyReviewLimit: Number(document.getElementById('opt-review-limit').value) || 100,
+        hideClozeGuide: hideClozeGuide
+      };
+
+      if (hideClozeGuide) {
+        localStorage.setItem('memorica_hide_cloze_guide', 'true');
+      } else {
+        localStorage.removeItem('memorica_hide_cloze_guide');
+      }
+
+      saveSettingsData();
+      alert('グローバル設定を保存しました。');
+    }
+
+    // Bulk Export / Import
+    function exportAllData() {
+      const payload = {
+        version: 'memorica_v4',
+        exportedAt: new Date().toISOString(),
+        theme: currentTheme,
+        settings,
+        folders,
+        cards
+      };
+      downloadJSON(payload, `memorica_backup_${new Date().toISOString().slice(0,10)}.json`);
+    }
+
+    function downloadJSON(obj, filename) {
+      const blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function importAllData(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        try {
+          const data = JSON.parse(evt.target.result);
+          if (data.theme && THEMES.some(t => t.id === data.theme)) {
+            applyTheme(data.theme);
+          }
+          if (data.folders && Array.isArray(data.folders)) {
+            folders = data.folders;
+            saveFoldersData();
+          }
+          if (data.cards && Array.isArray(data.cards)) {
+            cards = data.cards;
+            saveCardsData();
+          }
+          if (data.settings) {
+            settings = data.settings;
+            saveSettingsData();
+          }
+          alert('インポートが完了しました。');
+          switchView('decks');
+        } catch (err) {
+          alert('JSONファイルの読み込みに失敗しました。');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function exportSingleDeck(folderId) {
+      const folder = folders.find(f => f.id === folderId);
+      if (!folder) return;
+
+      const descendantIds = getSubFolderIds(folderId);
+      const targetFolders = folders.filter(f => descendantIds.includes(f.id));
+      const targetCards = cards.filter(c => descendantIds.includes(c.folderId));
+
+      const payload = {
+        exportedAt: new Date().toISOString(),
+        deckName: folder.name,
+        folders: targetFolders,
+        cards: targetCards
+      };
+
+      downloadJSON(payload, `memorica_deck_${folder.name}.json`);
+    }
+
+    // Stats View & AI Prompt Copy
+    function renderStatsView() {
+      const total = cards.length;
+      const learned = cards.filter(c => c.status === 'review').length;
+      const learning = cards.filter(c => c.status === 'learning').length;
+
+      document.getElementById('stat-total').innerText = total;
+      document.getElementById('stat-learned').innerText = learned;
+      document.getElementById('stat-learning').innerText = learning;
+    }
+
+    function copyAiPrompt() {
+      const promptText = document.getElementById('ai-prompt-text').innerText;
+      navigator.clipboard.writeText(promptText).then(() => {
+        alert('AI作成用プロンプトをクリップボードにコピーしました！');
+      }).catch(() => {
+        alert('コピーに失敗しました。テキストを手動で選択してコピーしてください。');
+      });
+    }
+
+    function escapeHTML(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+  </script>
+</body>
+</html>
