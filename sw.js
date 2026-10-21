@@ -1,4 +1,4 @@
-const CACHE_NAME = 'memorica-v6';
+const CACHE_NAME = 'memorica-v11';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -8,6 +8,7 @@ const ASSETS_TO_CACHE = [
 ];
 
 self.addEventListener('install', (event) => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return Promise.allSettled(
@@ -15,7 +16,6 @@ self.addEventListener('install', (event) => {
       );
     })
   );
-  self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
@@ -35,9 +35,34 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
+  const isHtml = event.request.mode === 'navigate' || event.request.headers.get('accept')?.includes('text/html');
+
+  if (isHtml) {
+    // Network-first for HTML navigations to ensure GitHub Pages updates appear immediately
+    event.respondWith(
+      fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const responseToCache = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, responseToCache);
+            });
+          }
+          return networkResponse;
+        })
+        .catch(() => {
+          return caches.match(event.request).then((cachedResponse) => {
+            return cachedResponse || caches.match('./') || caches.match('./index.html');
+          });
+        })
+    );
+    return;
+  }
+
+  // Stale-while-revalidate for static assets
   event.respondWith(
-    fetch(event.request)
-      .then((networkResponse) => {
+    caches.match(event.request).then((cachedResponse) => {
+      const fetchPromise = fetch(event.request).then((networkResponse) => {
         if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
           const responseToCache = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
@@ -45,16 +70,9 @@ self.addEventListener('fetch', (event) => {
           });
         }
         return networkResponse;
-      })
-      .catch(() => {
-        return caches.match(event.request).then((cachedResponse) => {
-          if (cachedResponse) {
-            return cachedResponse;
-          }
-          if (event.request.headers.get('accept')?.includes('text/html')) {
-            return caches.match('./') || caches.match('./index.html');
-          }
-        });
-      })
+      }).catch(() => null);
+
+      return cachedResponse || fetchPromise;
+    })
   );
 });

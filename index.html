@@ -618,6 +618,18 @@
       border-radius: 8px;
       box-shadow: var(--shadow-sm);
       transition: background-color 0.15s ease, border-color 0.15s ease;
+      gap: 12px;
+    }
+
+    .multiline-item-row:not(.row-not-due) {
+      cursor: pointer;
+    }
+
+    .multiline-item-row.row-not-due {
+      opacity: 0.92;
+      background: rgba(248, 250, 252, 0.7);
+      border-style: dashed;
+      cursor: default;
     }
 
     .multiline-row-left {
@@ -656,6 +668,80 @@
       font-size: 0.95rem;
       min-width: 80px;
       text-align: center;
+      cursor: pointer;
+    }
+
+    .multiline-row-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .multiline-row-actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .row-btn {
+      padding: 5px 11px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-main);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .row-btn:hover {
+      filter: brightness(0.95);
+    }
+
+    .row-btn.btn-row-correct.active {
+      background: #15803d !important;
+      color: #ffffff !important;
+      border-color: #15803d !important;
+      box-shadow: 0 1px 3px rgba(21, 128, 61, 0.3);
+    }
+
+    .row-btn.btn-row-incorrect.active {
+      background: #dc2626 !important;
+      color: #ffffff !important;
+      border-color: #dc2626 !important;
+      box-shadow: 0 1px 3px rgba(220, 38, 38, 0.3);
+    }
+
+    .multiline-status-tag {
+      font-size: 0.74rem;
+      padding: 3px 8px;
+      border-radius: 9999px;
+      font-weight: 600;
+      white-space: nowrap;
+      user-select: none;
+    }
+
+    .multiline-status-tag.tag-not-due {
+      background: #f1f5f9;
+      color: #64748b;
+      border: 1px solid #cbd5e1;
+    }
+
+    @media (max-width: 600px) {
+      .multiline-item-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+      .multiline-row-right {
+        width: 100%;
+        justify-content: flex-end;
+      }
     }
 
     /* Cloze Instruction Guide */
@@ -1808,8 +1894,15 @@
     // Multi-line & Line-based Flashcard Helper Functions
     function splitTextLines(text) {
       if (!text) return [];
-      let s = String(text).replace(/<br\s*\/?>/gi, '\n');
-      s = s.replace(/\\r\\n/g, '\n').replace(/\\n/g, '\n').replace(/\\r/g, '\n');
+      let s = String(text)
+        .replace(/<br\s*\/?>/gi, '\n')
+        .replace(/<\/div>/gi, '\n')
+        .replace(/<div>/gi, '')
+        .replace(/<\/p>/gi, '\n')
+        .replace(/<p>/gi, '')
+        .replace(/\\r\\n/g, '\n')
+        .replace(/\\n/g, '\n')
+        .replace(/\\r/g, '\n');
       return s.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
     }
 
@@ -1846,8 +1939,8 @@
         });
       }
 
-      // パターンC: front に複数行が含まれ、back が単一行または空の場合
-      if (frontLines.length > 1 && backLines.length <= 1) {
+      // パターンC: back が空または無効で、front に複数行が含まれる場合（1列リスト暗記）
+      if (frontLines.length > 1 && (!card.back || !card.back.trim())) {
         return frontLines.map(fl => {
           const m = fl.match(/^(.+?)([:：\t]| - | ― )(.+)$/);
           if (m) {
@@ -1907,17 +2000,17 @@
       const backLines = splitTextLines(card.back);
 
       let headerHTML = '';
-      if (frontLines.length > 1 && backLines.length <= 1 && card.back && card.back.trim()) {
-        headerHTML = `<div class="multiline-card-question" style="font-size: 1.15rem; font-weight: 700; margin-bottom: 16px; line-height: 1.6; color: var(--text-main); word-break: break-word;">${renderCardHTMLText(card.back)}</div>`;
-      } else if (card.front && card.front.trim() && (frontLines.length === 1 || backLines.length !== frontLines.length)) {
+      if (card.front && card.front.trim() && (backLines.length > 1 || frontLines.length !== backLines.length)) {
         headerHTML = `<div class="multiline-card-question" style="font-size: 1.15rem; font-weight: 700; margin-bottom: 16px; line-height: 1.6; color: var(--text-main); word-break: break-word;">${renderCardHTMLText(card.front)}</div>`;
+      } else if (frontLines.length > 1 && (!card.back || !card.back.trim())) {
+        headerHTML = `<div class="multiline-card-question" style="font-size: 1.05rem; font-weight: 700; margin-bottom: 12px; color: var(--text-muted);">以下の各行を記憶確認してください:</div>`;
       }
 
       let listHTML = '<div class="multiline-card-list">';
 
       items.forEach((item, idx) => {
         const isDue = isMaskDue(card, idx);
-        const state = currentMaskStates[idx] || 'unrevealed';
+        const state = currentMaskStates[idx] || (isDue ? 'unrevealed' : 'not_due');
 
         let stateClass = '';
         let badgeText = '';
@@ -1931,22 +2024,34 @@
         }
 
         let maskElement = '';
+        let actionButtonsHTML = '';
+
         if (!isDue) {
           // 期日が来ていない行は最初から表示されている状態
           maskElement = `<span class="mask-item not-due-open" title="この行は復習期日前です">${escapeHTML(stripBrackets(item.content))}</span>`;
+          actionButtonsHTML = `<span class="multiline-status-tag tag-not-due">期日前</span>`;
         } else {
           // 期日が来た行のみ伏せられたマスク状態
-          maskElement = `<span class="mask-item ${stateClass}" data-mask-idx="${idx}" onpointerdown="handleMaskPointerDown(event, ${idx})" onpointerup="handleMaskPointerUp(event, ${idx})" onpointercancel="handleMaskPointerCancel(event, ${idx})" onpointerleave="handleMaskPointerCancel(event, ${idx})" oncontextmenu="handleMaskContextMenu(event, ${idx})"><span>${escapeHTML(stripBrackets(item.content))}</span><span class="mask-badge">${badgeText}</span></span>`;
+          maskElement = `<span class="mask-item ${stateClass}" data-mask-idx="${idx}" onclick="handleMaskTap(${idx}, event)" oncontextmenu="handleMaskContextMenu(event, ${idx})" title="タップで正解/誤答切替"><span>${escapeHTML(stripBrackets(item.content))}</span><span class="mask-badge">${badgeText}</span></span>`;
+          actionButtonsHTML = `
+            <div class="multiline-row-actions" onclick="event.stopPropagation();">
+              <button type="button" class="row-btn btn-row-correct ${state === 'correct' ? 'active' : ''}" onclick="setMaskState(${idx}, 'correct'); event.stopPropagation();" title="この行を正解にする">✓ 正解</button>
+              <button type="button" class="row-btn btn-row-incorrect ${state === 'incorrect' ? 'active' : ''}" onclick="setMaskState(${idx}, 'incorrect'); event.stopPropagation();" title="この行を誤答（再出題）にする">✕ 誤答</button>
+            </div>
+          `;
         }
 
         const labelHTML = item.label ? `<span class="multiline-row-label">${escapeHTML(stripBrackets(item.label))}</span>` : '';
 
         listHTML += `
-          <div class="multiline-item-row">
+          <div class="multiline-item-row ${!isDue ? 'row-not-due' : ''}" ${isDue ? `onclick="handleMaskTap(${idx}, event)"` : ''}>
             <div class="multiline-row-left">
               <span class="multiline-row-index">#${idx + 1}</span>
               ${labelHTML}
               <div class="multiline-row-target">${maskElement}</div>
+            </div>
+            <div class="multiline-row-right" onclick="event.stopPropagation();">
+              ${actionButtonsHTML}
             </div>
           </div>
         `;
@@ -2195,7 +2300,7 @@
     function initServiceWorker() {
       if ('serviceWorker' in navigator) {
         // Use version parameter and updateViaCache: 'none' to bypass browser HTTP cache on GitHub Pages
-        const swUrl = './sw.js?v=memorica-v8';
+        const swUrl = './sw.js?v=memorica-v11';
         navigator.serviceWorker.register(swUrl, { scope: './', updateViaCache: 'none' })
           .then(reg => {
             console.log('ServiceWorker registered with scope:', reg.scope);
@@ -2757,8 +2862,8 @@
             ${(isClozeType && !settings.hideClozeGuide) ? `
               <div class="cloze-guide-bar">
                 <div class="cloze-guide-content">
-                  <span>👆 <strong>タップ</strong>: 正解として開く</span>
-                  <span>⏱️ <strong>長押し</strong>: 正解 ⇔ 誤答を切替</span>
+                  <span>👆 <strong>タップ</strong>: 開く / 正解 ⇔ 誤答を切替</span>
+                  <span>🔘 <strong>各行ボタン</strong>: 「✓ 正解」「✕ 誤答」で直接指定</span>
                 </div>
                 <button type="button" class="cloze-guide-close" onclick="dismissClozeGuide(event)" title="今後この説明を表示しない" aria-label="説明を閉じる">✕</button>
               </div>
@@ -2838,56 +2943,34 @@
       });
     }
 
-    // Mask Interaction Event Handlers (Tap = Reveal as Correct ONLY; Long Press = Toggle between Incorrect & Correct)
-    function handleMaskPointerDown(e, maskIdx) {
-      maskLongPressedTriggered = false;
-      if (maskLongPressTimer) clearTimeout(maskLongPressTimer);
-
-      maskLongPressTimer = setTimeout(() => {
-        maskLongPressedTriggered = true;
-        toggleMaskIncorrectState(maskIdx);
-      }, 400);
-    }
-
-    function handleMaskPointerUp(e, maskIdx) {
-      if (maskLongPressTimer) clearTimeout(maskLongPressTimer);
-      if (!maskLongPressedTriggered) {
-        handleMaskTap(maskIdx);
+    // Tap action: Toggles between unrevealed -> correct -> incorrect -> correct
+    function handleMaskTap(maskIdx, event) {
+      if (event && event.stopPropagation) {
+        event.stopPropagation();
       }
-    }
+      const current = currentMaskStates[maskIdx] || 'unrevealed';
+      if (current === 'not_due') return;
 
-    function handleMaskPointerCancel(e, maskIdx) {
-      if (maskLongPressTimer) clearTimeout(maskLongPressTimer);
+      if (current === 'unrevealed') {
+        setMaskState(maskIdx, 'correct');
+      } else if (current === 'correct') {
+        setMaskState(maskIdx, 'incorrect');
+      } else {
+        setMaskState(maskIdx, 'correct');
+      }
     }
 
     function handleMaskContextMenu(e, maskIdx) {
-      e.preventDefault();
-      toggleMaskIncorrectState(maskIdx);
+      if (e) e.preventDefault();
+      handleMaskTap(maskIdx, e);
     }
 
-    // Tap action: Only opens unrevealed masks as correct. Never closes already revealed masks or switches them.
-    function handleMaskTap(maskIdx) {
-      const current = currentMaskStates[maskIdx] || 'unrevealed';
-      if (current === 'unrevealed') {
-        currentMaskStates[maskIdx] = 'correct';
-        updateMaskElementDOM(maskIdx);
-        checkClozeAllRevealed();
-      }
-      // If already 'correct' or 'incorrect', tapping does nothing to avoid accidental toggles/closing
-    }
-
-    // Long press action: Toggle strictly between incorrect and correct (never goes back to unrevealed)
+    // Deprecated timer handlers kept as no-ops for safety
+    function handleMaskPointerDown(e, maskIdx) {}
+    function handleMaskPointerUp(e, maskIdx) {}
+    function handleMaskPointerCancel(e, maskIdx) {}
     function toggleMaskIncorrectState(maskIdx) {
-      const current = currentMaskStates[maskIdx] || 'unrevealed';
-      if (current === 'unrevealed') {
-        currentMaskStates[maskIdx] = 'incorrect';
-      } else if (current === 'incorrect') {
-        currentMaskStates[maskIdx] = 'correct';
-      } else {
-        currentMaskStates[maskIdx] = 'incorrect';
-      }
-      updateMaskElementDOM(maskIdx);
-      checkClozeAllRevealed();
+      handleMaskTap(maskIdx);
     }
 
     function setMaskState(maskIdx, state) {
@@ -2898,21 +2981,40 @@
 
     function updateMaskElementDOM(maskIdx) {
       const el = document.querySelector(`.mask-item[data-mask-idx="${maskIdx}"]`);
-      if (!el) return;
-
+      const row = el ? el.closest('.multiline-item-row') : null;
       const state = currentMaskStates[maskIdx] || 'unrevealed';
-      el.classList.remove('revealed', 'correct', 'incorrect');
 
-      const badgeEl = el.querySelector('.mask-badge');
+      if (el) {
+        el.classList.remove('revealed', 'correct', 'incorrect');
+        let badgeEl = el.querySelector('.mask-badge');
+        if (!badgeEl && (state === 'correct' || state === 'incorrect')) {
+          badgeEl = document.createElement('span');
+          badgeEl.className = 'mask-badge';
+          el.appendChild(badgeEl);
+        }
 
-      if (state === 'correct') {
-        el.classList.add('revealed', 'correct');
-        if (badgeEl) badgeEl.innerText = '✓';
-      } else if (state === 'incorrect') {
-        el.classList.add('revealed', 'incorrect');
-        if (badgeEl) badgeEl.innerText = '✕';
-      } else {
-        if (badgeEl) badgeEl.innerText = '';
+        if (state === 'correct') {
+          el.classList.add('revealed', 'correct');
+          if (badgeEl) badgeEl.innerText = '✓';
+        } else if (state === 'incorrect') {
+          el.classList.add('revealed', 'incorrect');
+          if (badgeEl) badgeEl.innerText = '✕';
+        } else {
+          if (badgeEl) badgeEl.innerText = '';
+        }
+      }
+
+      if (row) {
+        const btnCorrect = row.querySelector('.btn-row-correct');
+        const btnIncorrect = row.querySelector('.btn-row-incorrect');
+        if (btnCorrect) {
+          if (state === 'correct') btnCorrect.classList.add('active');
+          else btnCorrect.classList.remove('active');
+        }
+        if (btnIncorrect) {
+          if (state === 'incorrect') btnIncorrect.classList.add('active');
+          else btnIncorrect.classList.remove('active');
+        }
       }
     }
 
@@ -3003,7 +3105,7 @@
           } else {
             const isCorrect = (st === 'correct');
             const previewMin = calculateIndividualBlankMinutes(card, i, isCorrect, activeOptions);
-            const timeLabel = formatTimePreview(previewMin);
+            const timeLabel = isCorrect ? formatTimePreview(previewMin) : '再出題';
             blankBadgesHTML += `
               <span class="cloze-preview-badge ${isCorrect ? 'badge-correct' : 'badge-incorrect'}">
                 ${itemUnitName}${i + 1}: ${isCorrect ? '正解 ✓' : '誤答 ✕'} (${timeLabel})
@@ -3017,7 +3119,7 @@
             <div class="cloze-summary-card">
               <div class="cloze-summary-header">
                 <span>🎯 ${itemUnitName}正答率: <strong>${accuracy}%</strong> (${correctCount}/${targetCount} 正解)</span>
-                <span style="font-size: 0.78rem; opacity: 0.85;">各${itemUnitName}の復習間隔を個別に最適化</span>
+                <span style="font-size: 0.78rem; opacity: 0.85;">各${itemUnitName}の復習期日を個別に最適化</span>
               </div>
               <div class="cloze-preview-list">
                 ${blankBadgesHTML}
@@ -3028,10 +3130,11 @@
 
         // Display SINGLE confirmation button
         if (bottomContent) {
+          const incorrectNote = incorrectCount > 0 ? `（誤答 ${incorrectCount} ${itemUnitName}はセッション内で再出題）` : '';
           bottomContent.innerHTML = `
             <button class="btn btn-primary" onclick="confirmClozeNext()" style="padding: 12px 16px;">
               <span style="font-size: 1.05rem; font-weight: 700;">✓ 復習日時を確定して次へ</span>
-              <span style="font-size: 0.76rem; opacity: 0.9; margin-top: 2px;">正答率: ${accuracy}%（${correctCount}/${targetCount} 正解）</span>
+              <span style="font-size: 0.76rem; opacity: 0.9; margin-top: 2px;">正答率: ${accuracy}%（${correctCount}/${targetCount} 正解）${escapeHTML(incorrectNote)}</span>
             </button>
           `;
         }
@@ -3042,7 +3145,7 @@
           bottomContent.innerHTML = `
             <button class="btn btn-secondary" onclick="revealAllMasks(true)">
               <span style="font-weight: 700;">残り ${remaining} 箇所の${itemUnitName}をすべて開く</span>
-              <span style="font-size: 0.72rem; opacity: 0.85;">（タップまたは長押しで個別回答も可能）</span>
+              <span style="font-size: 0.72rem; opacity: 0.85;">（各行の「✓ 正解」「✕ 誤答」ボタンで個別判定も可能）</span>
             </button>
           `;
         }
@@ -3085,6 +3188,8 @@
 
       ensureClozeSchedules(card);
 
+      let anyIncorrect = false;
+
       for (let i = 0; i < totalMasks; i++) {
         // If this mask is not due yet, preserve its existing future schedule
         if (currentMaskStates[i] === 'not_due') {
@@ -3115,16 +3220,29 @@
             sch.dueDate = Date.now() + sch.interval * 24 * 60 * 60 * 1000;
           }
         } else {
-          // Incorrect: Reset learning step, decrease ease
+          // Incorrect: Reset learning step, decrease ease, mark DUE NOW for session re-study
+          anyIncorrect = true;
           sch.ease = Math.max(1.3, sch.ease - 0.2);
           sch.step = 0;
           sch.status = 'learning';
-          sch.dueDate = Date.now() + (steps[0] || 1) * 60 * 1000;
+          sch.dueDate = Date.now();
         }
       }
 
       syncCardFromClozeSchedules(card);
       saveCardsData();
+
+      // RE-QUESTIONING (再出題): If any line was answered incorrectly, re-insert card into studyQueue!
+      if (anyIncorrect) {
+        const remainingQueueCount = studyQueue.length - (currentCardIndex + 1);
+        if (remainingQueueCount >= 3) {
+          // Re-insert 3 cards later so user sees intervening cards
+          studyQueue.splice(currentCardIndex + 4, 0, card);
+        } else {
+          // Re-append to end of study queue
+          studyQueue.push(card);
+        }
+      }
 
       // Check if any other cards became due and need to interrupt immediately
       injectDueCardsIntoQueue();
@@ -3181,7 +3299,7 @@
           badgeText = '✕';
         }
 
-        return `<span class="mask-item ${stateClass}" data-mask-idx="${idx}" onpointerdown="handleMaskPointerDown(event, ${idx})" onpointerup="handleMaskPointerUp(event, ${idx})" onpointercancel="handleMaskPointerCancel(event, ${idx})" onpointerleave="handleMaskPointerCancel(event, ${idx})" oncontextmenu="handleMaskContextMenu(event, ${idx})">${p1}<span class="mask-badge">${badgeText}</span></span>`;
+        return `<span class="mask-item ${stateClass}" data-mask-idx="${idx}" onclick="handleMaskTap(${idx}, event)" oncontextmenu="handleMaskContextMenu(event, ${idx})" title="タップで正解/誤答切替">${p1}<span class="mask-badge">${badgeText}</span></span>`;
       };
 
       str = str.replace(/\{\{(.*?)\}\}/g, replacer);
@@ -3299,7 +3417,13 @@
         card.ease = Math.max(1.3, card.ease - 0.2);
         card.step = 0;
         card.status = 'learning';
-        card.dueDate = Date.now() + (steps[0] || 1) * 60 * 1000;
+        card.dueDate = Date.now();
+        const remainingQueueCount = studyQueue.length - (currentCardIndex + 1);
+        if (remainingQueueCount >= 3) {
+          studyQueue.splice(currentCardIndex + 4, 0, card);
+        } else {
+          studyQueue.push(card);
+        }
       } else if (rating === 'hard') {
         card.ease = Math.max(1.3, card.ease - 0.15);
         if (card.status === 'learning') {
@@ -3698,18 +3822,29 @@
                 const front = parts[0].trim();
                 const back = parts.slice(1).join('\t').trim();
                 if (front || back) {
-                  items.push({
-                    type: 'basic',
-                    front: front,
-                    back: back
-                  });
+                  // If front is empty and items already exist, this is a continuation row for the previous card's back
+                  if (!front && items.length > 0) {
+                    items[items.length - 1].back += (items[items.length - 1].back ? '\n' : '') + back;
+                  } else {
+                    items.push({
+                      type: 'basic',
+                      front: front,
+                      back: back
+                    });
+                  }
                 }
               } else if (parts.length === 1 && parts[0].trim().length > 0) {
-                items.push({
-                  type: 'basic',
-                  front: parts[0].trim(),
-                  back: ''
-                });
+                const line = parts[0].trim();
+                // If there's an existing item and this line doesn't have a tab, it continues the previous card's back
+                if (items.length > 0) {
+                  items[items.length - 1].back += (items[items.length - 1].back ? '\n' : '') + line;
+                } else {
+                  items.push({
+                    type: 'basic',
+                    front: line,
+                    back: ''
+                  });
+                }
               }
             });
           }
